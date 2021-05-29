@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="MainWIndow">
+    <file>win_images/main_window.png</file>
+    <file>tool_images/build_chose_image_pair.png</file>
+    <file>tool_images/config_camera.png</file>
+    <file>tool_images/config_setting.png</file>
+    <file>tool_images/build_optimize.png</file>
+    <file>tool_images/data_open_fold.png</file>
+    <file>tool_images/data_open_db.png</file>
+    <file>tool_images/build_continue.png</file>
+  </qresource>
+</RCC>

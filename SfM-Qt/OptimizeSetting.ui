@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>OptimizeSetting</class>
+ <widget class="QWidget" name="OptimizeSetting">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>441</width>
+    <height>210</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>441</width>
+    <height>210</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>441</width>
+    <height>210</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>设置 BA 优化</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="MainWIndow.qrc">
+    <normaloff>:/MainWIndow/tool_images/build_optimize.png</normaloff>:/MainWIndow/tool_images/build_optimize.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="choose_BA_poses">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>选择待优化位姿</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="optimize_none">
+        <property name="text">
+         <string>不优化位姿</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QRadioButton" name="optimize_all">
+        <property name="text">
+         <string>优化所有位姿</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="optimize_init_cur">
+        <property name="text">
+         <string>排除初始和当前位姿</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="choose_BA_mode">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>优化模式</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="local_BA">
+        <property name="text">
+         <string>本地优化</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="global_BA">
+        <property name="text">
+         <string>全局优化</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="MainWIndow.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>local_BA</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>onLocalOptimize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>global_BA</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>onGlobalOptimize(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>169</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>371</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optimize_none</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>onOptimizeNone(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>100</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optimize_init_cur</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>onOptimizeInitCur(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>247</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>optimize_all</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>onOptimizeAll(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>373</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>431</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>276</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>184</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>OptimizeSetting</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>409</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onLocalOptimize(bool)</slot>
+  <slot>onGlobalOptimize(bool)</slot>
+  <slot>onOptimizeNone(bool)</slot>
+  <slot>onOptimizeInitCur(bool)</slot>
+  <slot>onOptimizeAll(bool)</slot>
+  <slot>accept()</slot>
+  <slot>reject()</slot>
+ </slots>
+</ui>

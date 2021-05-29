@@ -1,0 +1,7 @@
+.vs/
+x86/
+x64/
+*.DotSettings.user
+*.vcxproj.user
+Debug/
+Release/

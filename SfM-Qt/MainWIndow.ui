@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWIndowClass</class>
+ <widget class="QMainWindow" name="MainWIndowClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>794</width>
+    <height>595</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SfM 系统</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="MainWIndow.qrc">
+    <normaloff>:/MainWIndow/win_images/main_window.png</normaloff>:/MainWIndow/win_images/main_window.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QSplitter" name="v_splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QSplitter" name="h_splitter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QVTKOpenGLWidget" name="cloud_show_window" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>鼠标左键控制旋转（可以组合 CTRL，SHIFT，ALT 按键），右键控制缩放</string>
+        </property>
+        <property name="statusTip">
+         <string>鼠标左键控制旋转（可以组合 CTRL，SHIFT，ALT 按键），右键控制缩放</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="run_settings">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>设置</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QRadioButton" name="radioButton">
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>PushButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>CheckBox</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QTextEdit" name="logs">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>500</height>
+        </size>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>794</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_data">
+    <property name="title">
+     <string>数据</string>
+    </property>
+    <addaction name="action_choose_fold"/>
+    <addaction name="action_db"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menu_build">
+    <property name="title">
+     <string>重建</string>
+    </property>
+    <addaction name="action_choose_pair"/>
+    <addaction name="action_continue"/>
+    <addaction name="action_BA"/>
+   </widget>
+   <widget class="QMenu" name="menu_config">
+    <property name="title">
+     <string>配置</string>
+    </property>
+    <addaction name="action_camera_conf"/>
+    <addaction name="action_run_conf"/>
+   </widget>
+   <widget class="QMenu" name="menu_help">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+   </widget>
+   <addaction name="menu_data"/>
+   <addaction name="menu_build"/>
+   <addaction name="menu_config"/>
+   <addaction name="menu_help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_choose_fold"/>
+   <addaction name="action_db"/>
+   <addaction name="action_continue"/>
+   <addaction name="action_BA"/>
+  </widget>
+  <action name="action_choose_fold">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/data_open_fold.png</normaloff>:/MainWIndow/tool_images/data_open_fold.png</iconset>
+   </property>
+   <property name="iconText">
+    <string>选择图片文件夹创建数据库</string>
+   </property>
+   <property name="toolTip">
+    <string>选择图片文件夹创建数据库</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_db">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/data_open_db.png</normaloff>:/MainWIndow/tool_images/data_open_db.png</iconset>
+   </property>
+   <property name="text">
+    <string>选择数据库（图片数据和图片关系数据）</string>
+   </property>
+   <property name="iconText">
+    <string>选择数据库（图片数据和图片关系数据）</string>
+   </property>
+   <property name="toolTip">
+    <string>选择数据库（图片数据和图片关系数据）</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_choose_pair">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/build_chose_image_pair.png</normaloff>:/MainWIndow/tool_images/build_chose_image_pair.png</iconset>
+   </property>
+   <property name="text">
+    <string>选择初始图片对</string>
+   </property>
+  </action>
+  <action name="action_continue">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/build_continue.png</normaloff>:/MainWIndow/tool_images/build_continue.png</iconset>
+   </property>
+   <property name="text">
+    <string>继续重建</string>
+   </property>
+  </action>
+  <action name="action_BA">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/build_optimize.png</normaloff>:/MainWIndow/tool_images/build_optimize.png</iconset>
+   </property>
+   <property name="text">
+    <string>设置捆绑优化</string>
+   </property>
+  </action>
+  <action name="action_camera_conf">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/config_camera.png</normaloff>:/MainWIndow/tool_images/config_camera.png</iconset>
+   </property>
+   <property name="text">
+    <string>设置相机参数</string>
+   </property>
+  </action>
+  <action name="action_run_conf">
+   <property name="icon">
+    <iconset resource="MainWIndow.qrc">
+     <normaloff>:/MainWIndow/tool_images/config_setting.png</normaloff>:/MainWIndow/tool_images/config_setting.png</iconset>
+   </property>
+   <property name="text">
+    <string>设置系统运行参数</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKOpenGLWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKOpenGLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="MainWIndow.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>action_choose_fold</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWIndowClass</receiver>
+   <slot>dataOpenFold()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_db</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWIndowClass</receiver>
+   <slot>dataOpenDB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_continue</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWIndowClass</receiver>
+   <slot>buildContinue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_BA</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWIndowClass</receiver>
+   <slot>buildOptimize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>dataOpenFold()</slot>
+  <slot>dataOpenDB()</slot>
+  <slot>buildContinue()</slot>
+  <slot>buildOptimize()</slot>
+ </slots>
+</ui>

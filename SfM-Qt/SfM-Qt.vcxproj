@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4F5A472C-CB52-42CC-B4B7-096473845796}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>5.15.2</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>5.15.2</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+    <Import Project="PCL.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+    <Import Project="PCL-rel.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link />
+    <Link>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\SfM\boost_serialization.cpp" />
+    <ClCompile Include="..\SfM\cal_pose.cpp" />
+    <ClCompile Include="..\SfM\C_main.cpp" />
+    <ClCompile Include="..\SfM\db_init.cpp" />
+    <ClCompile Include="..\SfM\image.cpp" />
+    <ClCompile Include="..\SfM\image_graph.cpp" />
+    <ClCompile Include="..\SfM\incr_sfm.cpp" />
+    <ClCompile Include="..\SfM\initialize.cpp" />
+    <ClCompile Include="..\SfM\key_point.cpp" />
+    <ClCompile Include="..\SfM\main.cpp" />
+    <ClCompile Include="..\SfM\map.cpp" />
+    <ClCompile Include="..\SfM\map_point.cpp" />
+    <ClCompile Include="..\SfM\map_point_filter.cpp" />
+    <ClCompile Include="..\SfM\M_main.cpp" />
+    <ClCompile Include="..\SfM\optimize.cpp" />
+    <ClCompile Include="..\SfM\re_triangulation.cpp" />
+    <ClCompile Include="..\SfM\system_info.cpp" />
+    <ClCompile Include="..\SfM\triangulate.cpp" />
+    <ClCompile Include="CameraSetting.cpp" />
+    <ClCompile Include="DB_Shower.cpp" />
+    <ClCompile Include="InitialPairSetting.cpp" />
+    <ClCompile Include="OptimizeSetting.cpp" />
+    <ClCompile Include="RuntimeSetting.cpp" />
+    <ClCompile Include="UserInputDialog.cpp" />
+    <QtRcc Include="MainWIndow.qrc" />
+    <QtUic Include="CameraSetting.ui" />
+    <QtUic Include="DB_Shower.ui" />
+    <QtUic Include="MainWIndow.ui" />
+    <QtMoc Include="MainWIndow.h" />
+    <ClCompile Include="MainWIndow.cpp" />
+    <ClCompile Include="main.cpp" />
+    <QtUic Include="OptimizeSetting.ui" />
+    <QtUic Include="RuntimeSetting.ui" />
+    <QtUic Include="UserInputDialog.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="OptimizeSetting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="CameraSetting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="RuntimeSetting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="DB_Shower.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="UserInputDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="InitialPairSetting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\SfM\algorithm.h" />
+    <ClInclude Include="..\SfM\cal_pose.h" />
+    <ClInclude Include="..\SfM\common_type.h" />
+    <ClInclude Include="..\SfM\db_init.h" />
+    <ClInclude Include="..\SfM\global_config.h" />
+    <ClInclude Include="..\SfM\image.h" />
+    <ClInclude Include="..\SfM\image_graph.h" />
+    <ClInclude Include="..\SfM\incr_sfm.h" />
+    <ClInclude Include="..\SfM\initialize.h" />
+    <ClInclude Include="..\SfM\key_point.h" />
+    <ClInclude Include="..\SfM\map.h" />
+    <ClInclude Include="..\SfM\map_point.h" />
+    <ClInclude Include="..\SfM\map_point_filter.h" />
+    <ClInclude Include="..\SfM\optimize.h" />
+    <ClInclude Include="..\SfM\re_triangulation.h" />
+    <ClInclude Include="..\SfM\system_info.h" />
+    <ClInclude Include="..\SfM\triangulate.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

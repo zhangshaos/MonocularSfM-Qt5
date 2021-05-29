@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="MainWIndow.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\SfM\main.cpp">
+      <Filter>SfM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\system_info.cpp">
+      <Filter>SfM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\C_main.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\cal_pose.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\incr_sfm.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\initialize.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\map_point_filter.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\optimize.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\re_triangulation.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\triangulate.cpp">
+      <Filter>SfM\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\boost_serialization.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\db_init.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\image.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\image_graph.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\key_point.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\M_main.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\map.cpp">
+      <Filter>SfM\view</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\map_point.cpp">
+      <Filter>SfM\view</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="MainWIndow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="MainWIndow.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="MainWIndow.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SfM">
+      <UniqueIdentifier>{14e23ab4-e5ce-4895-8b99-1d1bd4d64e29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SfM\control">
+      <UniqueIdentifier>{58eef2c8-bc1a-489e-ae7a-17147ef4701d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SfM\model">
+      <UniqueIdentifier>{a60b8bbf-398d-4661-9099-62b54ca64693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SfM\view">
+      <UniqueIdentifier>{a9a30811-8c99-42cc-befe-114e836196b1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\SfM\algorithm.h">
+      <Filter>SfM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\common_type.h">
+      <Filter>SfM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\global_config.h">
+      <Filter>SfM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\system_info.h">
+      <Filter>SfM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\cal_pose.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\incr_sfm.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\initialize.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\map_point_filter.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\optimize.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\re_triangulation.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\triangulate.h">
+      <Filter>SfM\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\db_init.h">
+      <Filter>SfM\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\image.h">
+      <Filter>SfM\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\image_graph.h">
+      <Filter>SfM\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\key_point.h">
+      <Filter>SfM\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\map.h">
+      <Filter>SfM\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\map_point.h">
+      <Filter>SfM\view</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
