@@ -10,8 +10,11 @@
 extern int M_main();
 extern int C_main();
 
-
-int main() {
+/**
+ * @brief original main function without GUI.
+ * @return 
+*/
+int ori_main() {
   using namespace std;
   std::locale::global(std::locale("zh_CN.utf8"));
   ios_base::sync_with_stdio(false);

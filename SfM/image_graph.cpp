@@ -1,4 +1,4 @@
-﻿#include "image_graph.h"
+#include "image_graph.h"
 
 #include <algorithm>
 #include <atomic>
@@ -38,6 +38,26 @@ bool ImageGraph::existConnection(int img1, int img2) const {
 
 const ImageGraph::AdjNodeSet& ImageGraph::getAllConnected(int image_id) const {
   return _g.at(image_id);
+}
+
+std::vector<int> ImageGraph::getAsendingConnected(int image_id) const {
+  using namespace std;
+  auto& connected = getAllConnected(image_id);
+  using IdMatches_t = pair<int, int64_t>;
+  vector<IdMatches_t> id_matches;
+  transform(connected.begin(), connected.end(),
+            inserter(id_matches, id_matches.begin()),
+            [](const AdjNodeSet::value_type& v) {
+              return IdMatches_t{v.first, v.second.matches};
+            });
+  sort(id_matches.begin(), id_matches.end(),
+       [](const IdMatches_t& a, const IdMatches_t& b) {
+         return a.second > b.second;
+       });
+  vector<int> ans;
+  transform(id_matches.begin(), id_matches.end(), inserter(ans, ans.begin()),
+            [](const IdMatches_t& v) { return v.first; });
+  return ans;
 }
 
 inline bool image_to_edges_less(const std::pair<int, int>& a,
@@ -132,8 +152,9 @@ std::pair<int, int> ImageGraph::getMostMatchesPair() const {
 
 std::vector<std::pair<int, int>> ImageGraph::getAllMatchedPair() const {
   using namespace std;
-  using Tuple = std::tuple<int, int, int64_t>; // <image-id1, image-id2, matched-keypoints>
-  using Pair = pair<int, int>; // <image-id, matched-images>
+  using Tuple = std::tuple<int, int, int64_t>;  // <image-id1, image-id2,
+                                                // matched-keypoints>
+  using Pair = pair<int, int>;                  // <image-id, matched-images>
   std::vector<Tuple> ranked;
   for (auto& p1 : _g) {
     int src_id = p1.first;

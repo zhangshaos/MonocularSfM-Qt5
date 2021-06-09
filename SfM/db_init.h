@@ -6,6 +6,9 @@
 /// \version 0.1
 //
 
+#ifndef __monocular_db_init_h__
+#define __monocular_db_init_h__
+
 #include <boost/format.hpp>
 #include <filesystem>
 #include <memory>
@@ -13,9 +16,6 @@
 
 #include "image.h"
 #include "image_graph.h"
-
-#ifndef __monocular_db_init_h__
-#define __monocular_db_init_h__
 
 namespace fs = std::filesystem;
 

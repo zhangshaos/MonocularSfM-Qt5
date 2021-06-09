@@ -9,11 +9,12 @@
 #ifndef __monocularsfm_imagegraph_h__
 #define __monocularsfm_imagegraph_h__
 
-#include "common_type.h"
 #include <opencv2/core.hpp>
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+
+#include "common_type.h"
 
 /// \class ImageGraph
 /// \brief a graph representing \ref Image and their relationship
@@ -86,51 +87,53 @@ class ImageGraph {
                      const std::vector<cv::DMatch>& dmatches);
 
   /// \brief test there is a connection between \p img1 and \p img2
-  /// \param img1 
-  /// \param img2 
-  /// \return 
+  /// \param img1
+  /// \param img2
+  /// \return
   bool existConnection(int img1, int img2) const;
 
-  /// \brief return all connected images sorted by matches with \p image_id
+  /// \brief return all connected images with \p image_id
   /// \param[in] image_id
   /// \return
   const AdjNodeSet& getAllConnected(int image_id) const;
 
+  /**
+   * @brief return all connected images sorted by matches with \p image_id
+   * @param[in] image_id
+   * @return
+   */
+  std::vector<int> getAsendingConnected(int image_id) const;
 
   /// \brief return the image in \class ImageGraph which have most connections
   ///  with the \p part images
   /// \param[in] part
   /// \return -1 means the no \p part edges in graph, other means correct
   /// node
-  [[deprecated("Use getConnectedOfPart() instead.")]]
-  int getMostConnectedOfPart(const std::unordered_set<int>& part) const;
+  [[deprecated("Use getConnectedOfPart() instead.")]] int
+  getMostConnectedOfPart(const std::unordered_set<int>& part) const;
 
   /// \brief return the images in \class ImageGraph which have connections
   ///  with the \p part images in ascending order
-  /// \param[in] part 
+  /// \param[in] part
   /// \return
   std::vector<int> getConnectedOfPart(
       const std::unordered_set<int>& part) const;
 
-  /// \brief return set of {image id, key point index} of \p part and the key point index
-  /// is matched to \p image_id's \p kp_idx-th keypoint
-  /// \param image_id 
-  /// \param kp_idx 
-  /// \param part 
-  /// \return 
+  /// \brief return set of {image id, key point index} of \p part and the key
+  /// point index is matched to \p image_id's \p kp_idx-th keypoint \param
+  /// image_id \param kp_idx \param part \return
   std::vector<std::pair<int, int>> getAllTrackedKptsOfPart(
       int image_id, int kp_idx, const std::unordered_set<int>& part) const;
 
   /// \brief get the image_id pair which having the most matches among all image
-  /// pairs 
-  /// \return 
-  /// \retval std::pair<int, int>
-  [[deprecated("Use getAllMatchedPair() instead.")]]
-  std::pair<int, int> getMostMatchesPair() const;
-
-  /// \brief get the image_id pairs which ranked by matches-count in ascending order
+  /// pairs
   /// \return
-  /// \retval std::vector<std::pair<int, int>>
+  /// \retval std::pair<int, int>
+  [[deprecated("Use getAllMatchedPair() instead.")]] std::pair<int, int>
+  getMostMatchesPair() const;
+
+  /// \brief get the image_id pairs which ranked by matches-count in ascending
+  /// order \return \retval std::vector<std::pair<int, int>>
   std::vector<std::pair<int, int>> getAllMatchedPair() const;
 };
 

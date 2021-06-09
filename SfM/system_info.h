@@ -17,21 +17,26 @@
 
 /// \brief System info
 class SystemInfo {
+ public:
+  // statistical info for system running time
+  class SysTimeInfo;
+
+  // statistical info for other infos
+  class SysStatistics;
+
+  // system running config
+  struct SysConfig;
+
+ private:
   cv::Mat1d _k;                      ///< camera matrix K(fx, fy, cx, cy)
   std::vector<double> _dist_coeffs;  ///< camera disturb
   mutable smtx _mtx;  ///< shared mutex for accessing unusually changed variable
 
-  // statistical info for system running time
-  class SysTimeInfo;
   sp<SysTimeInfo> _time;
 
-  // statistical info for other infos
-  class SysStatistics;
   sp<SysStatistics> _record;
 
-  // system running config
-  struct SysConfig;
-  const sp<SysConfig> _conf;
+  sp<SysConfig> _conf;
 
  public:
   SystemInfo();
@@ -70,6 +75,8 @@ class SystemInfo {
   }
 
   int max_features() const;
+  double sift_contrast_threshold() const;
+  double sift_sigma() const;
   double dist_ratio_in_filter_matches() const;
   int min_matches_edge_in_create_image_graph() const;
 
@@ -93,6 +100,9 @@ class SystemInfo {
 
   int max_image_count_in_localBA() const;
   int max_found_image_count_in_BA_to_run_globalBA() const;
+  int max_image_optimized_times() const;
+
+  void setConf(const sp<SysConfig>& conf);
 
   /// \brief start recording present time point
   /// \param name
@@ -107,6 +117,45 @@ class SystemInfo {
   /// \brief output all time periods ranked by time point in ascending order
   /// \see getTimeRecord
   std::vector<std::string> getFullTimeRecord() const;
+};
+
+struct SystemInfo::SysConfig {
+  int _max_features;  //< 特征提取最多特征数
+  double _sift_contrast_threshold;
+  double _sitf_sigma;
+  double _dist_ratio_in_filter_matches;         //< 筛选特征点匹配
+  int _min_matches_edge_in_create_image_graph;  //< Image Graph
+                                                //中，边节点最小的匹配数量
+
+  // 地图初始化时相关参数：
+  int _min_inliers_in_2d2d_matching;         //< 2D-2D 对应内点最小数量
+  double _ransac_confidence_in_compute_H_E;  //< 求 H、E 时 ransac 置信度
+  double _max_error_in_compute_F_E;          //< 求 E 时误差阈值
+  double _max_error_in_compute_H;            //< 求 H 时误差阈值
+  double _max_error_in_init_triangulte;  //< 三角测量重投影误差阈值
+  double _min_angle_in_init_triangulte;  //< 三角测量角度误差阈值
+
+  // Pnp 求解位姿相关参数
+  int _min_inlers_in_pnp;             //< Pnp 后 2D-3D 匹配的最小数量
+  int _ransac_times_in_pnp;           //< Pnp ransac 迭代次数
+  double _ransac_conifidence_in_pnp;  //< Pnp ransac 置信阈值
+  double _max_error_in_pnp;           //< Pnp 误差阈值
+
+  // 后续三角测量相关参数
+  double _max_error_in_triangulate;   //< 重投影误差阈值
+  double _min_anglue_in_triangulate;  //< 最小角度
+
+  // BA 优化后，过滤地图点时的 重投影误差阈值、最小角度
+  double _max_error_in_BA_filter;
+  double _min_angle_in_BA_filter;
+
+  // Local BA 优化时，用于位姿调整的最大图片数量
+  int _max_image_count_in_localBA;
+  int _max_found_image_count_in_BA_to_run_globalBA;
+  int _max_image_optimized_times;
+
+  SysConfig();
+  std::string toString() const;
 };
 
 #ifdef MAIN

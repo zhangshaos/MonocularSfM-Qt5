@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>794</width>
-    <height>595</height>
+    <width>611</width>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,15 +24,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <widget class="QSplitter" name="v_splitter">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
@@ -46,7 +40,7 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <widget class="QVTKOpenGLWidget" name="cloud_show_window" native="true">
+       <widget class="QVTKOpenGLNativeWidget" name="cloud_show_window">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -75,8 +69,8 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>50</width>
-          <height>200</height>
+          <width>100</width>
+          <height>150</height>
          </size>
         </property>
         <property name="title">
@@ -84,24 +78,44 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QPushButton" name="choose_font">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>RadioButton</string>
+            <string>设置日志字体</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>PushButton</string>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox">
-           <property name="text">
-            <string>CheckBox</string>
+           <property name="title">
+            <string>正在处理的图片</string>
            </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="current_sfm_image">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>测试图片</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -116,8 +130,8 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>50</width>
-         <height>25</height>
+         <width>100</width>
+         <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -125,6 +139,12 @@
          <width>16777215</width>
          <height>500</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Consolas</family>
+         <pointsize>11</pointsize>
+        </font>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -139,7 +159,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>794</width>
+     <width>611</width>
      <height>26</height>
     </rect>
    </property>
@@ -274,10 +294,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>QVTKOpenGLWidget</class>
-   <extends>QWidget</extends>
-   <header>QVTKOpenGLWidget.h</header>
-   <container>1</container>
+   <class>QVTKOpenGLNativeWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>QVTKOpenGLNativeWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

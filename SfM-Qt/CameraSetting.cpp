@@ -8,3 +8,8 @@ CameraSetting::CameraSetting(QWidget* parent)
 }
 
 CameraSetting::~CameraSetting() { delete ui; }
+
+std::tuple<double, double, double, double> CameraSetting::getConf() const {
+  return std::make_tuple(ui->fx_setting->value(), ui->fy_setting->value(),
+                         ui->cx_setting->value(), ui->cy_setting->value());
+}

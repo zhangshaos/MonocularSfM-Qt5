@@ -24,17 +24,25 @@ bool TwoViewTriangulater::calculate(Point3& pt) {
   pt.z = pt4s.at<double>(2, 0) * ratio;
 
   // start to filter...
-  // 1. filter minus depth
+  // 1. filter according to depth
   // 2. check reprojection error
   // 3. check the angle of triangulation
-  if (pt.z < 0) return false;
-  vector<Point2> pt2s{_pt1, _pt2};
   vector<cv::Mat> projs{proj1, proj2};
+  sp<I_MapPointFilter> depth_test(new ReprojDistanceFilter(10 * 100, projs, 2));
+  if (depth_test->isBad(pt)) {
+    return false;
+  }
+  vector<Point2> pt2s{_pt1, _pt2};
   sp<I_MapPointFilter> reproj_test(new ReprojErrorFilter(
       sys.max_error_in_init_triangulte(), pt2s, projs, 2));
+  if (reproj_test->isBad(pt)) {
+    return false;
+  }
   sp<I_MapPointFilter> angle_test(
       new AngleFilter(sys.min_angle_in_init_triangulte(), _R1, _R2, _t1, _t2));
-  if (reproj_test->isBad(pt) || angle_test->isBad(pt)) return false;
+  if (angle_test->isBad(pt)) {
+    return false;
+  }
   return true;
 }
 
@@ -56,20 +64,36 @@ bool MultiViewsTriangulater::calculate(Point3& pt) {
   double minmum = S.at<double>(3, 0), second_minmum = S.at<double>(2, 0);
   if (second_minmum < minmum * 1'000.) return false;  // industry trick
   cv::Mat1d h_pos = V.row(3);
+  // NOTE: if J is full-ranked(JX = 0 no answer), which lead to h_pos = Zeor
+  // we must to filter this case
   h_pos /= h_pos.at<double>(0, 3);
   pt.x = h_pos.at<double>(0, 0);
   pt.y = h_pos.at<double>(0, 1);
   pt.z = h_pos.at<double>(0, 2);
 
-  sp<I_MapPointFilter> reproj_test(
-      new ReprojErrorFilter(sys.max_error_in_triangulate(), _pts, _projs,
-                            std::max((int)_projs.size() - 1, 2)));
+  if (abs(pt.x) <= 1e-8 && abs(pt.y) <= 1e-8 && abs(pt.z) <= 1e-8) {
+    std::cout << "\nSVD full rank\n" << std::endl;
+    return false;
+  }
 
-  if (reproj_test->isBad(pt)) return false;
+  const int min_okay_reproj_count =
+      std::max(static_cast<int>(_projs.size()) - 1, 2);
+
+  sp<I_MapPointFilter> depth_test(
+      new ReprojDistanceFilter(10 * 50, _projs, min_okay_reproj_count));
+  if (depth_test->isBad(pt)) {
+    return false;
+  }
+
+  sp<I_MapPointFilter> reproj_test(new ReprojErrorFilter(
+      sys.max_error_in_triangulate(), _pts, _projs, min_okay_reproj_count));
+  if (reproj_test->isBad(pt)) {
+    return false;
+  }
 
   // NOTE: \see incr_sfm.cpp => IncfSfM::run() => CreateMapPoints() => \var
   // views and \var kp2s you could found that \a _pts, \a _projs are in
-  // ascending order with key-point-matches so, you can measure their angle
+  // ascending order with key-point-matches, so you can measure their angle
   // between each other
   // sp<I_MapPointFilter> angle_test(new AngleFilter(
   // sys.min_anglue_in_triangulate(), ))

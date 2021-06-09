@@ -71,7 +71,7 @@ bool IncrSfM::run() {
           cout << "============ Triggle Global BA ============\n";
           is_globalBA = true;
           auto ba_param = BAParam::create(db, map, used_images);
-          ba_param->addConstPose(init_image);
+          ba_param->addConstRotation(init_image);
           sp<I_Optimize> optimizer(new BAOptimizer(ba_param));
           if (optimizer->optimize()) ba_param->writeBack();
         }
@@ -109,8 +109,8 @@ bool IncrSfM::run() {
     // process Local BA
     if (!is_globalBA) {
       auto ba_param = BAParam::create(db, map, used_images, next_image);
-      // ba_param->addConstPose(init_image);
-      ba_param->addConstPose(next_image);
+      // ba_param->addConstRotation(init_image);
+      ba_param->addConstRotation(next_image);
       sp<I_Optimize> optimizer(new BAOptimizer(ba_param));
       if (optimizer->optimize()) {
         ba_param->writeBack();
@@ -154,6 +154,166 @@ bool IncrSfM::run() {
             "less!!!!!!\n";
   }
   return false;
+}
+
+bool IncrSfM::runPnp(int id) {
+  using namespace std;
+  using Format = boost::format;
+
+  cv::Mat1d R(3, 3, 0.), t(3, 1, 0.);
+  cv::Mat1i inlier_idxes;
+  Image& img = db->images().at(id);
+
+  do {
+    std::vector<Point3> map_pts;
+    std::vector<Point2> kpts;
+    trackObservers(id, map_pts, kpts);
+    cout << Format(
+                "============ track observer ============\n"
+                "* image id: %3%\n"
+                "* map points: %1%\n"
+                "* observer(2D key points): %2%\n"
+                "========================================\n") %
+                map_pts.size() % kpts.size() % id;
+    // calculate initial R|t to refine Pnp
+    bool use_existed_pose = false;
+    auto connected = db->G().getAsendingConnected(id);
+    for (int id_base : connected) {
+      if (used_images->count(id_base) == 0) continue;
+      InitialMatchedParam pm(*db, id_base, id);
+      auto pts_pair = GetMatchedKeypointsPairFromDB(pm);
+
+      // calculate the relative pose
+      {
+        cv::Mat1b inliers;
+        shared_ptr<I_CalculatePose> cal_poser(
+            new EpipolarPoser(pts_pair.first, pts_pair.second, inliers));
+        if (!cal_poser->calculate(R, t)) {
+          continue;
+        }
+        // NOTE: if you use oepncv for decompose R-t in epipolar,
+        // the t is normalized...
+        double scale = 10;  // little trick...
+        t *= scale;
+
+        // After calculate relative pose
+        // R | t is Rc1c0 | tc1c0, where c0 is id_base, c1 is id
+        // Tc1w = Tc1c0 * Tc0w
+        // | Rc1c0 tc1c0 | * | Rc0w tc0w | = | Rc1c0 * Rc0w  Rc1c0 * tc0w + tc1c0 |
+        // |    0    1   |   |   0    1  |   |   0                     1          |
+        const Image& img_base = db->images().at(id_base);
+        do {
+          cout << Format(
+                      "******************************\n"
+                      "cam0: %1%, cam1: %2%\n"
+                      "Rc1c0:\n%3%\n"
+                      "tc1c0:\n%4%\n"
+                      "******************************\n") %
+                      img_base.path() % img.path() % R % t;
+        } while (0);
+        t = R * img_base.tcw() + t;
+        R = R * img_base.Rcw();
+        use_existed_pose = true;
+        break;
+      }
+    }  // test all connected images
+
+    {
+      // show estimated pose(R|t) and map points
+      debugPose(R, t);
+      debugPoints(map_pts);
+    }
+
+    sp<I_CalculatePose> poser(
+        new PnpPoser(map_pts, kpts, inlier_idxes, use_existed_pose));
+    if (!poser->calculate(R, t)) {
+      cout << Format("====== [%1%] compute pose failed ======\n") % id;
+      break;
+    }
+    img.Rcw(R);
+    img.tcw(t);
+    return true;
+  } while (0);
+  return false;
+}
+
+void IncrSfM::debugPose(const cv::Mat1d& R, const cv::Mat1d& t) {
+  R.convertTo(dbg_Rcw, CV_32F);
+  t.convertTo(dbg_tcw, CV_32F);
+}
+
+std::pair<cv::Mat1f, cv::Mat1f> IncrSfM::debugPose() const {
+  return std::pair<cv::Mat1f, cv::Mat1f>{dbg_Rcw.t(), -dbg_tcw};
+}
+
+void IncrSfM::debugPoints(const std::vector<Point3>& pt3s) {
+  dbg_pts.clear();
+  dbg_pts.reserve(pt3s.size());
+  using std::copy;
+  using std::inserter;
+  copy(pt3s.begin(), pt3s.end(), inserter(dbg_pts, dbg_pts.begin()));
+}
+
+std::vector<Point3> IncrSfM::debugPoints() const { return dbg_pts; }
+
+bool IncrSfM::runMapPoints(int id) {
+  using namespace std;
+  using Format = boost::format;
+
+  // produce all new map points
+  CreateNewMapPoints(map, db, *used_images, id);
+  if (map->size() < 50) {
+    cout << Format(
+                "====== [%1%] triangulate failed (global map points are too "
+                "few) ======\n") %
+                id;
+    return false;  // Directly cause IncrSfM failed when global map is clear
+  }
+
+  // register
+  used_images->emplace(id);
+  return true;
+}
+
+void IncrSfM::runBA(bool local, bool none_pose, int cur_image) {
+  using namespace std;
+  using Format = boost::format;
+  /**
+   * local && none_pose           => create(cur_image, true)
+   * local && !none_pose && cur   => create(cur_image, false)
+   *                                 addConstant(init_image, cur_image)
+   * local && !none_pose && -1    => create(cur_image, false)
+   * !local && none_pose          => create(-1, true)
+   * !local && !none_pose && cur  => create(-1, false)
+   *                                 addConstant(init_image, cur_image)
+   * !local && !none_pose && -1   => create(-1, false)
+   */
+  sp<BAParam> ba_param =
+      local ? BAParam::create(db, map, used_images, cur_image, none_pose)
+            : BAParam::create(db, map, used_images, -1, none_pose);
+
+  if (!none_pose && cur_image != -1) {
+    ba_param->addConstRotation(init_image);
+    ba_param->addConstTranslation(init_image);
+    ba_param->addConstRotation(cur_image);
+    ba_param->addConstTranslation(cur_image);
+  }
+
+  if (!local) std::cout << "============ Triggle Global BA ============\n";
+
+  sp<I_Optimize> optimizer(new OptimizerWithIntrinsic(ba_param));
+  if (optimizer->optimize()) {
+    ba_param->writeBack();
+    std::cout << boost::format(
+                     "\n*************** Global Map points: %1% "
+                     "***************\n") %
+                     map->size();
+    ReTriangulator rt(ba_param);
+    int n = rt.run();
+    std::cout << Format(
+                     "\n********* Re-Triangulate %1% map points *********\n") %
+                     n;
+  }
 }
 
 void IncrSfM::saveMap(const std::string& path) const {

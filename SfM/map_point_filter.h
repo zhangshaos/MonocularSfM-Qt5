@@ -43,4 +43,18 @@ class AngleFilter : public virtual I_MapPointFilter {
   bool isBad(const Point3& pt3) override;
 };
 
+class ReprojDistanceFilter : public virtual I_MapPointFilter {
+  double _max_dist;
+  int _min_okay_proj_count;
+  const std::vector<cv::Mat>& _proj;
+
+ public:
+  ReprojDistanceFilter(double max_dist, const std::vector<cv::Mat>& proj,
+                    int min_okay_proj_count)
+      : _max_dist(max_dist),
+        _min_okay_proj_count(min_okay_proj_count),
+        _proj(proj) {}
+  bool isBad(const Point3& pt3) override;
+};
+
 #endif

@@ -6,6 +6,10 @@
 
 using Format = boost::format;
 
+/**
+ * @brief construct DB model without GUI.
+ * @return 
+*/
 int M_main() {
   using namespace std;
 
@@ -13,7 +17,7 @@ int M_main() {
   init.runInitializing();
 
   auto db = init.createDB();
-  //TODO: Ö´ĞĞÍ¼Ëã·¨£¬Çó db µÄËùÓĞÁªÍ¨×Ó¼¯
+  //TODO: æ‰§è¡Œå›¾ç®—æ³•ï¼Œæ±‚ db çš„æ‰€æœ‰è”é€šå­é›†
 
   // output the relationship of all images
   cout << Format(

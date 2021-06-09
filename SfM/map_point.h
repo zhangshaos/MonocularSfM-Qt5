@@ -31,33 +31,27 @@ class Observer {
   int kp_idx() const { return _kp_idx; }
 };
 
+struct MapPoint_impl;
+
 class MapPoint {
-  struct MapPoint_impl {
-    int64_t id = -1;
-    Point3 pos;
-    std::vector<Observer> obs;
-  };
-
   static void GetNewMapPointID(int64_t& id);
-
-  sp<MapPoint_impl> self{new MapPoint_impl};
+  sp<MapPoint_impl> self;
 
  public:
-  MapPoint() = default;
-  MapPoint(const Point3& pos) {
-    GetNewMapPointID(self->id);
-    self->pos = pos;
-  }
+  MapPoint();
+  MapPoint(const Point3& pos);
 
-  int64_t id() const { return self->id; }
-  const Point3& pos() const { return self->pos; }
-  Point3& pos() { return self->pos; }
-  const std::vector<Observer>& obs() const { return self->obs; }
+  int64_t id() const;
+  const Point3& pos() const;
+  Point3& pos();
+  const std::vector<Observer>& obs() const;
+  uint64_t ba_times() const;
+  void inc_ba_times();
 
-  /// \brief 
+  /// \brief
   /// \param pos
   /// \param obs array of <image_id, key_point_idx>
-  /// \param db 
+  /// \param db
   /// \return
   static MapPoint create(const Point3& pos,
                          const std::vector<std::pair<int, int>>& obs,
@@ -66,12 +60,10 @@ class MapPoint {
   /// \brief add a observer seeing this map point
   /// \param image_id the image saw this map point
   /// \param kp_idx the index of keypoints of the \p image
-  void addObserver(int image_id, int kp_idx) {
-    self->obs.emplace_back(image_id, kp_idx);
-  }
+  void addObserver(int image_id, int kp_idx);
 
   /// \brief clear all observers in \p db
-  /// \param db 
+  /// \param db
   void clearAllObservers(sp<DB>& db);
 };
 

@@ -51,17 +51,23 @@ class PnpPoser : public I_CalculatePose {
   const std::vector<Point3> &_map_pts;
   const std::vector<Point2> &_kpts;
   cv::Mat1i &_inlier_idxes;
+  bool _existed;
 
  public:
   /// \brief constructor
   /// \param map_pts the map points vector reference
   /// \param kpts the key points vector reference
   /// \param inliers
+  /// \param existed if true, use R|t with default value
   /// \note
   /// * this class only own the reference to \p map_pts and \p kpts,
   ///   which means you must be concerned about their lifetime
-  PnpPoser(const std::vector<Point3> &map_pts, const std::vector<Point2> &kpts, cv::Mat1i &inliers)
-      : _map_pts(map_pts), _kpts(kpts), _inlier_idxes(inliers) {}
+  PnpPoser(const std::vector<Point3> &map_pts, const std::vector<Point2> &kpts,
+           cv::Mat1i &inliers, bool existed = false)
+      : _map_pts(map_pts),
+        _kpts(kpts),
+        _inlier_idxes(inliers),
+        _existed(existed) {}
 
   /// \brief
   /// \param[out] R rot matrix of 3x3

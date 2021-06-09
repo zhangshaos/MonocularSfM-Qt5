@@ -51,26 +51,30 @@ void OptimizeSetting::accept() {
         case all:
           _mode = OptMode::local_all;
           break;
-        default:
-          _mode = OptMode::none;
+        case none:
+          _mode = OptMode::local_none;
           break;
+        default:
+          assert(0);
       }
       break;
     case global:
       switch (_ba_pose) {
         case exclude_init_cur:
-          _mode = OptMode::global_exclude_init;
+          _mode = OptMode::global_exclude_init_cur;
           break;
         case all:
           _mode = OptMode::global_all;
           break;
-        default:
-          _mode = OptMode::none;
+        case none:
+          _mode = OptMode::global_none;
           break;
+        default:
+          assert(0);
       }
       break;
     default:
-      _mode = OptMode::none;
+      // _mode unchanged
       break;
   }
   qDebug("====== BA optimize mode is %d ======\n", _mode);

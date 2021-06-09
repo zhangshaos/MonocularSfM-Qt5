@@ -54,6 +54,12 @@ class Map {
   void clear(sp<DB>& db);
 
   int64_t size() const;
+
+  /**
+   * @brief export map's all points' position
+   * @return vector<Point3>
+   */
+  std::vector<Point3> getAllPoints() const;
 };
 
 #endif  // !__monocular_map_h__

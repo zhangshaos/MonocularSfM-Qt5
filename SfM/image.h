@@ -15,24 +15,28 @@
 
 #include "key_point.h"
 
+struct Image_impl {
+  int id = -1;              ///< ID of an image, default -1
+  uint64_t R_ba_times = 0;  ///< optimized Rcw times of bundle adjustment
+  uint64_t t_ba_times = 0;  ///< optimized tcw times of bundle adjustment
+  std::string path;         ///< path of the image file
+  cv::Mat gray_mat,
+      rgb_mat;                 ///< color or gray mat returned by cv::imread()
+  std::vector<KeyPoint> kpts;  ///< all keypoints of this image
+  cv::Mat descp;               ///< keypoints' descriptor
+  cv::Mat Rcw, tcw;            ///< pose(Tcw = Rcw3x3 | tcw3x1) of this image
+};
+
 /// \class Image
 /// \brief image of database
 /// \note
 /// *
 class Image {
-  struct Image_impl {
-    int id = -1;       ///< ID of an image, default -1
-    std::string path;  ///< path of the image file
-    cv::Mat gray_mat,
-        rgb_mat;                 ///< color or gray mat returned by cv::imread()
-    std::vector<KeyPoint> kpts;  ///< all keypoints of this image
-    cv::Mat descp;               ///< keypoints' descriptor
-    cv::Mat Rcw, tcw;            ///< pose(Tcw = Rcw3x3 | tcw3x1) of this image
-  };
-
-  sp<Image_impl> self{new Image_impl};
+  sp<Image_impl> self;
 
  public:
+  Image();
+
   template <typename Archive>
   void serialize(Archive &ar, const unsigned int ver);
 
@@ -43,34 +47,36 @@ class Image {
   /// * This funtion can be used in multi-thread
   static void GetNewImageID(int &id);
 
-  void id(int id) { self->id = id; }
-  int id() const { return self->id; }
-  const cv::Mat &gray_mat() const { return self->gray_mat; }
-  void gray_mat(const cv::Mat &m) { self->gray_mat = m; }
-  const cv::Mat &rgb_mat() const { return self->rgb_mat; }
-  void rgb_mat(const cv::Mat &m) { self->rgb_mat = m; }
-  const std::vector<KeyPoint> &kpts() const { return self->kpts; }
-  void kpts(std::vector<KeyPoint> &&kps) { self->kpts = std::move(kps); }
-  const cv::Mat &descp() const { return self->descp; }
-  void descp(const cv::Mat &m) { self->descp = m; }
-  const cv::Mat &Rcw() const { return self->Rcw; }
-  const cv::Mat &tcw() const { return self->tcw; }
-  void Rcw(const cv::Mat &Rcw) { self->Rcw = Rcw; }
-  void tcw(const cv::Mat &tcw) { self->tcw = tcw; }
-  const std::string &path() const { return self->path; }
-  void path(const std::string &path) { self->path = path; }
+  void id(int id);
+  int id() const;
+  const cv::Mat &gray_mat() const;
+  void gray_mat(const cv::Mat &m);
+  const cv::Mat &rgb_mat() const;
+  void rgb_mat(const cv::Mat &m);
+  const std::vector<KeyPoint> &kpts() const;
+  void kpts(std::vector<KeyPoint> &&kps);
+  const cv::Mat &descp() const;
+  void descp(const cv::Mat &m);
+  const cv::Mat &Rcw() const;
+  const cv::Mat &tcw() const;
+  void Rcw(const cv::Mat &Rcw);
+  void tcw(const cv::Mat &tcw);
+  const std::string &path() const;
+  void path(const std::string &path);
+  uint64_t R_ba_times() const;
+  uint64_t t_ba_times() const;
+  void inc_R_ba_times();
+  void inc_t_ba_times();
 
   /// \brief get matched map point's id of \p kp_idx-th key point
   /// \param kp_idx
   /// \return matched map point's id
-  int64_t getMapptOfKpt(int kp_idx) const { return kpts().at(kp_idx).id(); }
+  int64_t getMapptOfKpt(int kp_idx) const;
 
   /// \brief set matched \p mp_idx-th map point's id of \p kp_idx-th key point
   /// \param kp_idx
   /// \param mp_idx
-  void setMapptOfKpt(int kp_idx, int64_t mp_idx) {
-    self->kpts.at(kp_idx).id(mp_idx);
-  }
+  void setMapptOfKpt(int kp_idx, int64_t mp_idx);
 };
 
 /// \brief Interface of extracting keypoint and computing feature descriptor

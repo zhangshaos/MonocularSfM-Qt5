@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="MainWIndow.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\SfM\main.cpp">
+    <ClCompile Include="..\SfM\ori_main.cpp">
       <Filter>SfM</Filter>
     </ClCompile>
     <ClCompile Include="..\SfM\system_info.cpp">
@@ -57,15 +55,88 @@
     <ClCompile Include="..\SfM\map_point.cpp">
       <Filter>SfM\view</Filter>
     </ClCompile>
+    <ClCompile Include="CameraSetting.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="DB_Shower.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="InitialPairSetting.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="OptimizeSetting.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeSetting.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="UserInputDialog.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWIndow.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="SfM.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
+    <ClCompile Include="PCLShower.cpp">
+      <Filter>MainUi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="MainWIndow.h" />
+    <QtMoc Include="CameraSetting.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="DB_Shower.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="InitialPairSetting.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="MainWIndow.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="OptimizeSetting.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="RuntimeSetting.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="UserInputDialog.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="SfM.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
+    <QtMoc Include="PCLShower.h">
+      <Filter>MainUi</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="MainWIndow.qrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="MainWIndow.ui" />
+    <QtUic Include="CameraSetting.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="DB_Shower.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="MainWIndow.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="OptimizeSetting.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="RuntimeSetting.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="UserInputDialog.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
+    <QtUic Include="InitialPairSetting.ui">
+      <Filter>MainUi</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SfM">
@@ -79,6 +150,9 @@
     </Filter>
     <Filter Include="SfM\view">
       <UniqueIdentifier>{a9a30811-8c99-42cc-befe-114e836196b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainUi">
+      <UniqueIdentifier>{9ddeb506-00d2-42c0-b464-cf47bef7531c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -133,5 +207,10 @@
     <ClInclude Include="..\SfM\map_point.h">
       <Filter>SfM\view</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="MainWIndow.qrc">
+      <Filter>MainUi</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

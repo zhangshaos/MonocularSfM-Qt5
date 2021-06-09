@@ -111,3 +111,12 @@ int64_t Map::size() const {
   slock<smtx> lock(_mtx);
   return (int64_t)_mappts.size();
 }
+
+std::vector<Point3> Map::getAllPoints() const {
+  ulock<smtx> lock(_mtx);
+  std::vector<Point3> point3s;
+  for (auto& id_mp : _mappts) {
+    point3s.emplace_back(id_mp.second.pos());
+  }
+  return point3s;
+}

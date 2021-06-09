@@ -39,15 +39,15 @@ struct BAParam {
   using BAVec2 = Arr<2>;
   using BAVec6 = Arr<6>;
 
-  using Image_Pose6 = std::pair<int, BAVec6>;  // <image-id, pose-vec6>
-  using ObserverPt2_Pose6_Mp3 =
-      std::tuple<BAVec2, double*,
-                 double*>;  // <observering point2, pose' ptr map point' ptr>
+  // <image-id, pose-vec6>
+  using Image_Pose6 = std::pair<int, BAVec6>;
+  // <observering point2, pose' ptr map point' ptr>
+  using ObserverPt2_Pose6_Mp3 = std::tuple<BAVec2, double*, double*>;
 
   std::vector<Image_Pose6> _poses;
-  std::unordered_set<int> _const_pose_ids;
   std::vector<ObserverPt2_Pose6_Mp3> _obs;
   std::unordered_map<int64_t, BAVec3> _point3s;
+  Arr<8> _intrinsic;
 
   /// \brief create a new \class BAParam
   /// \param[in] db database of all images
@@ -57,17 +57,30 @@ struct BAParam {
   ///            the \p image is -1(defualt), which means optimizing all used
   ///            images, otherwise only optimizing these used images related to
   ///            \p image
-  /// \param[in] constant if constant is true, the pose ready to adjust will not adjust!
+  /// \param[in] constant if constant is true, the pose ready to adjust will not
+  /// adjust!
   /// \return std::shard_ptr<BAParam>
   static sp<BAParam> create(const sp<DB>& db, const sp<Map>& map,
                             const sp<UsedImages>& used, int image = -1,
                             bool constant = false);
 
-  /// \brief add unchanged pose when optimizing
+  /// \brief add unoptimized pose(R) when optimizing
   /// \param image_id
   /// \note
   /// * if pose don't be add to BA system, ingnore that pose
-  void addConstPose(int image_id);
+  void addConstRotation(int image_id);
+
+  /**
+   * @brief add unoptimized pose(t) when optimizing
+   * @param image_id
+   */
+  void addConstTranslation(int image_id);
+
+  /**
+   * @brief set intrinsic could be optimized or not
+   * @param optimized
+   */
+  void setIntrinsicOptimized(bool optimized = true);
 
   /// \brief write adjusted data back to \a _db and \a _map
   void writeBack() const;
@@ -76,7 +89,9 @@ struct BAParam {
   mutable sp<DB> _db;
   sp<Map> _map;
   sp<UsedImages> _used_images;
-  bool is_constant_pose;
+
+  std::unordered_set<int> _const_rotation, _const_translation;
+  bool is_const_intrinsic, is_const_all_poses;
 
   /// \brief read all \a _used_images and optimize for them
   void readFromGlobal();
@@ -92,7 +107,10 @@ struct BAParam {
   void read(const UsedImages& used);
 
   friend class ReTriangulator;
+  friend class BAOptimizer;
+  friend class OptimizerWithIntrinsic;
 };
+
 
 class BAOptimizer : public I_Optimize {
  public:
@@ -117,8 +135,41 @@ class BAOptimizer : public I_Optimize {
  public:
   /// \brief parameters to be adjusted
   /// \param param the address of parameters
+  [[deprecated("use OptimizerWithIntrinsic instead")]]
   BAOptimizer(const sp<BAParam>& param) : _param(param) {}
 
+  [[deprecated("use OptimizerWithIntrinsic instead")]]
+  bool optimize() override;
+};
+
+
+class OptimizerWithIntrinsic : public I_Optimize {
+ public:
+  struct CostFunc {
+    double x, y;
+    CostFunc(double _x, double _y) : x(_x), y(_y) {}
+
+    /**
+     * @brief
+     * @tparam T double or float
+     * @param intrinsic fx, fy, cx, cy, k1, k2, p1, p2
+     * @param pose Rcw(vec) tcw
+     * @param pt3
+     * @param residual
+     * @return
+     */
+    template <class T>
+    bool operator()(const T intrinsic[8], const T pose[6], const T pt3[3],
+                    T residual[2]) const;
+
+    static ceres::CostFunction* create(double x, double y);
+  };
+
+ private:
+  sp<BAParam> _param;
+
+ public:
+  OptimizerWithIntrinsic(const sp<BAParam>& param) : _param(param) {}
   bool optimize() override;
 };
 

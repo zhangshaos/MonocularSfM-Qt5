@@ -1,6 +1,7 @@
 #include "db_init.h"
 
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/unordered_map.hpp>
@@ -27,10 +28,12 @@ void DBInit::runInitializing() {
 
   // extraction keypoints and feature description for each picture
   vector<fs::path> files;
-  for (auto& entry : fs::directory_iterator(_images_dir))
-    if (entry.is_regular_file() && (entry.path().extension() == ".jpg" ||
-                                    entry.path().extension() == ".png"))
+  for (auto& entry : fs::directory_iterator(_images_dir)) {
+    auto ext =
+        boost::algorithm::to_lower_copy(entry.path().extension().string());
+    if (entry.is_regular_file() && (ext == ".jpg" || ext == ".png"))
       files.emplace_back(entry.path());
+  }
   for_each(std::execution::par, files.begin(), files.end(),
            [this](const fs::path& f) {
              auto path = f.string();
@@ -82,6 +85,9 @@ void DBInit::saveDB(fs::path& images_dir, fs::path& graph_dir) const {
 
   (images_dir = _out_dir) /= ("images.binary");
   (graph_dir = _out_dir) /= ("image_graph.binary");
+  images_dir = fs::absolute(images_dir);
+  graph_dir = fs::absolute(graph_dir);
+
   ofstream f1(images_dir, ios_base::binary), f2(graph_dir, ios_base::binary);
   assert(f1.is_open() && f2.is_open());
   boost::archive::binary_oarchive bf1(f1), bf2(f2);
@@ -110,6 +116,11 @@ sp<DB> DB::createDB(const fs::path& images_dir, const fs::path& graph_dir) {
   return db;
 }
 
+inline std::string GetFilenameFromPath(const std::string& path) {
+  fs::path fs_path = path;
+  return fs_path.filename().string();
+}
+
 std::string DB::debugString() const {
   using namespace std;
   ostringstream infos;
@@ -118,14 +129,15 @@ std::string DB::debugString() const {
     int src_id = p1.first;
     auto& src_path = _images.at(src_id).path();
     auto& targets = p1.second;
-    infos << Format("[%1%] %2%:\n") % src_id % quoted(src_path);
+    infos << Format("[%1%] %2%:\n") % src_id %
+                 quoted(GetFilenameFromPath(src_path));
     if (targets.empty()) infos << "    [NULL]\n";
     for (auto& p2 : targets) {
       int target_id = p2.first;
       auto& target_path = _images.at(target_id).path();
       auto& target = p2.second;
-      infos << Format("    [%1%-%3%] %2%\n") % target_id % quoted(target_path) %
-                   target.matches;
+      infos << Format("    [%1%-%3%] %2%\n") % target_id %
+                   quoted(GetFilenameFromPath(target_path)) % target.matches;
     }
   }
   return infos.str();

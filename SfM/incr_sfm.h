@@ -29,7 +29,40 @@ struct IncrSfM {
   /// \brief run a pass of IncrSfM
   /// \return TRUE if okay, otherwise FALSE
   /// \retval bool
-  bool run();
+  [[deprecated("use runPnp[MapPoints, BA] instead")]] bool run();
+
+  /**
+   * @brief calculate current image's pose(Tcw) using Pnp algorithm
+   * @param[in] id the id of image to calculate its pose
+   * @return TRUE if succeeding, else FALSE
+   */
+  bool runPnp(int id);
+
+  [[maybe_unused]] cv::Matx33f dbg_Rcw;
+  [[maybe_unused]] cv::Matx31f dbg_tcw;
+  [[maybe_unused]] void debugPose(const cv::Mat1d &R, const cv::Mat1d &t);
+  [[maybe_unused]] std::pair<cv::Mat1f, cv::Mat1f> debugPose() const;
+
+  [[maybe_unused]] std::vector<Point3> dbg_pts;
+  [[maybe_unused]] void debugPoints(const std::vector<Point3> &pt3s);
+  [[maybe_unused]] std::vector<Point3> debugPoints() const;
+
+  /**
+   * @brief create new map points
+   * @param[in] id the id of current image
+   * @return True if succeeding, else False
+   */
+  bool runMapPoints(int id);
+
+  /**
+   * @brief run Bundle Adjustment for optimizing map points and images' pose
+   * @param[in] local
+   * @param[in] none_pose if true, which means not optimize pose
+   * @param[in] cur_image if -1, which means all poses will be optimized\n
+   *            if image is current pose(non -1), which means all poses exclude
+   *            initial and current pose
+   */
+  void runBA(bool local = true, bool none_pose = true, int cur_image = -1);
 
   void saveMap(const std::string &path) const;
   void savePoses(const std::string &path) const;

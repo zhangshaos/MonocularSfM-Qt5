@@ -47,7 +47,7 @@ int C_main() {
   } catch (std::exception e) {
     puts(e.what());
     throw;
-  }
+  }  
 
   return 0;
 }

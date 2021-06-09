@@ -14,10 +14,11 @@ class OptimizeSetting : public QDialog {
   ~OptimizeSetting();
 
   enum class OptMode {
-    none,
+    local_none,
     local_exclude_init_cur,
     local_all,
-    global_exclude_init,
+    global_none,
+    global_exclude_init_cur,
     global_all
   };
   OptMode mode() const;
@@ -34,5 +35,5 @@ class OptimizeSetting : public QDialog {
   Ui::OptimizeSetting *ui;
   enum { unknown, local, global } _ba_mode = unknown;
   enum { none, exclude_init_cur, all } _ba_pose = none;
-  OptMode _mode = OptMode::none;
+  OptMode _mode = OptMode::local_none;
 };

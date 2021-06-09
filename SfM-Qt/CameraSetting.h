@@ -12,7 +12,12 @@ class CameraSetting : public QDialog {
   CameraSetting(QWidget *parent);
   ~CameraSetting();
 
- private slots:
+  std::tuple<double, double, double, double> getConf() const;
+
+ signals:
+  void conf(double fx, double fy, double cx, double cy);
+
+ public slots:
 
  private:
   Ui::CameraSetting *ui;
