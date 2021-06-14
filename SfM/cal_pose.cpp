@@ -2,6 +2,7 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "key_point.h"
 #include "system_info.h"
 
 inline int countNonZeroOfU8rows(const cv::Mat& m) {
@@ -17,7 +18,7 @@ bool EpipolarPoser::calculate(cv::Mat& R, cv::Mat& t) {
   using namespace std;
   // compute Essential and H matrix
   cv::Mat e_inliers;
-  
+
   auto E = cv::findEssentialMat(_kpts1, _kpts2, sys.camera_K(), cv::RANSAC,
                                 sys.ransac_confidence_in_compute_H_E(),
                                 sys.max_error_in_compute_F_E(), e_inliers);

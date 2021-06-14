@@ -190,6 +190,14 @@ bool Initialize::runInStep(int image_1, int image_2, sp<Map> &map) {
     // get best matching image pair in global database
     InitialMatchedParam pm(*_db, image_1, image_2);
     auto pts_pair = GetMatchedKeypointsPairFromDB(pm);
+    auto K = sys.camera_K();
+    auto distort_params = sys.distort_parameter();
+
+    // Undistort key points
+    do {
+      UndistortPoint(pts_pair.first, K, distort_params);
+      UndistortPoint(pts_pair.second, K, distort_params);
+    } while (0);
 
     // calculate the pose
     cv::Mat1d R1 = cv::Mat1d::eye(3, 3), t1 = cv::Mat1d::zeros(3, 1),
@@ -226,7 +234,7 @@ bool Initialize::runInStep(int image_1, int image_2, sp<Map> &map) {
         // triangulate...
         const Point2 &pt2 = pts_pair.second[i], &pt1 = pts_pair.first[i];
         sp<I_Triangulate> tri(
-            new TwoViewTriangulater(R1, t1, R2, t2, sys.camera_K(), pt1, pt2));
+            new TwoViewTriangulater(R1, t1, R2, t2, K, pt1, pt2));
         Point3 mappt;
         if (!tri->calculate(mappt)) continue;
         // insert the map point into global map
@@ -259,7 +267,7 @@ bool Initialize::runInStep(int image_1, int image_2, sp<Map> &map) {
     auto ba_param = BAParam::create(_db, map, _used_images);
     ba_param->addConstRotation(_init_image);
     ba_param->addConstTranslation(_init_image);
-    ba_param->setIntrinsicOptimized();
+    // ba_param->setIntrinsicOptimized();
     sp<I_Optimize> optimizer(new OptimizerWithIntrinsic(ba_param));
     if (optimizer->optimize()) ba_param->writeBack();
 

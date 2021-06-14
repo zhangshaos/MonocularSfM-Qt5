@@ -29,7 +29,7 @@ int C_main() {
     IncrSfM sfm(db, g_map, used_imgs, init_image_id);
     sfm.saveMap("./initial_map.ply");
     while (sfm.run()) {
-      // TODO: visualization...
+      // visualization...
     }
 
     // over

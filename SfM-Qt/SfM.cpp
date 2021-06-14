@@ -56,14 +56,16 @@ void SfM::setInitImagePair(int a, int b) {
       _image_1, _image_2);
 }
 
-void SfM::setCameraConf(double fx, double fy, double cx, double cy) {
-  sys.camera_K(fx, fy, cx, cy);
+void SfM::setCameraConf(const std::vector<double>& conf) {
+  sys.camera_K(conf[0], conf[1], conf[2], conf[3]);
+  sys.distort_parameter(conf[4], conf[5], conf[6], conf[7]);
   _is_camera_set = true;
   qDebug(
       "\n********* camera parameters *********\n"
       "fx = %f, fy = %f, cx = %f, cy = %f\n"
+      "k1 = %f, k2 = %f, p1 = %f, p2 = %f\n"
       "*************************************\n",
-      fx, fy, cx, cy);
+      conf[0], conf[1], conf[2], conf[3], conf[4], conf[5], conf[6], conf[7]);
 }
 
 void SfM::setRuntimeConf(const std::any& _conf) {

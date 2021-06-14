@@ -67,7 +67,8 @@ inline std::vector<cv::KeyPoint> LimitSIFTkeypointsByRandomSample(
 Image SIFT_ExtractKeyPoints::run() {
   using namespace std;
   // never use \p nfeatures to limit SIFT features number!!!
-  auto sift = cv::SIFT::create(0, 3, 0.03, 10, 1.25);
+  auto sift = cv::SIFT::create(0, 3, sys.sift_contrast_threshold(), 10.0,
+                               sys.sift_sigma());
 
   vector<cv::KeyPoint> kps;
   sift->detect(_rgb_mat, kps);
@@ -141,6 +142,70 @@ inline std::vector<cv::DMatch> CrossCheck(const std::vector<cv::DMatch>& dms1,
       good.emplace_back(dm);
   }
   return good;
+}
+
+// 4. filter by cross check <Ai => Bj, Bk> and <Bx => Ay, Az>
+inline std::vector<cv::DMatch> CrossCheck(
+    const std::vector<std::vector<cv::DMatch>>& kdms1,
+    const std::vector<std::vector<cv::DMatch>>& kdms2, int k) {
+  using namespace std;
+  using ConstIter = vector<cv::DMatch>::const_iterator;
+  /**
+   ********** kdms1 and kdms2 **********
+   * 0:     (0, 123) (0, 324)          *
+   * 1:     (1, 3848) (1, 2388)        *
+   * 2:     (2, 1111) (2, 899)         *
+   * 3:     (3, 7761) (3, 192)         *
+   * .               .                 *
+   * .               .                 *
+   * .               .                 *
+   * 8001:  (8001, 23) (8001, 7760)    *
+   *************************************
+   */
+  vector<vector<int>> match_results(kdms1.size());
+
+  for (auto& dms2 : kdms2) {
+    for (auto& dm : dms2) {
+      int i = dm.trainIdx, j = dm.queryIdx;
+      // test <i, j> existed in kdms1[i]
+      // found j in dms1
+      const auto& dms1 = kdms1[i];
+      auto found = [&j](const cv::DMatch& dm) { return dm.trainIdx == j; };
+      if (dms1.end() != find_if(dms1.begin(), dms1.end(), found)) {
+        match_results[i].emplace_back(j);
+      }
+    }
+  }
+  // matches[i] means key points match <i, matches[i]...>
+
+  std::vector<cv::DMatch> ans;
+  // check kdms2's element whether existed
+  vector<bool> found(kdms2.size(), false);
+  for (int sz = 1; sz <= k; ++sz) {
+    for (int i = 0; i < match_results.size(); ++i) {
+      const auto& all_matched_results = match_results[i];
+      if (all_matched_results.size() != sz) {
+        // process sz from 1, 2......
+        continue;
+      }
+      for (int j : all_matched_results) {
+        // <i, j> exists in
+        if (!found[j]) {
+          // found j in kdms1
+          const auto& dms1 = kdms1[i];
+          auto target =
+              find_if(dms1.begin(), dms1.end(),
+                      [&j](const cv::DMatch& dm) { return dm.trainIdx == j; });
+          assert(target != dms1.end());
+          ans.emplace_back(i, j, target->distance);
+          found[j] = true;
+          break;  // make sure <i, j> unique
+        }         // if <?, j> existed, continue
+      }           // process all possible match <i, ?>
+    }             // process all matches
+  }
+
+  return ans;
 }
 
 size_t BF_MatchFeatures::run(std::vector<cv::DMatch>& matches) {

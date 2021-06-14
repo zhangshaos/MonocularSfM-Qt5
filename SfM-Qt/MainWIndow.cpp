@@ -164,8 +164,8 @@ void MainWIndow::confCamera() {
   qDebug("action %s is clicked\n",
          qPrintable(ui->action_camera_conf->objectName()));
   if (_camara_set->exec()) {
-    auto [fx, fy, cx, cy] = _camara_set->getConf();
-    emit _camara_set->conf(fx, fy, cx, cy);
+    auto conf = _camara_set->getConf();
+    emit _camara_set->conf(conf);
   }
 }
 

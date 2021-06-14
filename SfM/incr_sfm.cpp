@@ -85,7 +85,7 @@ bool IncrSfM::run() {
       }
       img.Rcw(R);
       img.tcw(t);
-      old_observer_counts = (int)map_pts.size();
+      old_observer_counts = static_cast<int>(map_pts.size());
     }
 
     // produce all new map points
@@ -168,6 +168,10 @@ bool IncrSfM::runPnp(int id) {
     std::vector<Point3> map_pts;
     std::vector<Point2> kpts;
     trackObservers(id, map_pts, kpts);
+    // Undistort key points
+    do {
+      UndistortPoint(kpts, sys.camera_K(), sys.distort_parameter());
+    } while (0);
     cout << Format(
                 "============ track observer ============\n"
                 "* image id: %3%\n"
@@ -199,8 +203,9 @@ bool IncrSfM::runPnp(int id) {
         // After calculate relative pose
         // R | t is Rc1c0 | tc1c0, where c0 is id_base, c1 is id
         // Tc1w = Tc1c0 * Tc0w
-        // | Rc1c0 tc1c0 | * | Rc0w tc0w | = | Rc1c0 * Rc0w  Rc1c0 * tc0w + tc1c0 |
-        // |    0    1   |   |   0    1  |   |   0                     1          |
+        // | Rc1c0 tc1c0 | * | Rc0w tc0w | = | Rc1c0 * Rc0w  Rc1c0 * tc0w +
+        // tc1c0 | |    0    1   |   |   0    1  |   |   0                     1
+        // |
         const Image& img_base = db->images().at(id_base);
         do {
           cout << Format(
@@ -298,6 +303,10 @@ void IncrSfM::runBA(bool local, bool none_pose, int cur_image) {
     ba_param->addConstRotation(cur_image);
     ba_param->addConstTranslation(cur_image);
   }
+
+  // if (ba_param->_poses.size() >= sys.max_image_count_in_localBA()) {
+  //  ba_param->setIntrinsicOptimized();
+  //}
 
   if (!local) std::cout << "============ Triggle Global BA ============\n";
 

@@ -91,6 +91,7 @@ struct BAParam {
   sp<UsedImages> _used_images;
 
   std::unordered_set<int> _const_rotation, _const_translation;
+  std::unordered_set<int64_t> _const_pt3s;
   bool is_const_intrinsic, is_const_all_poses;
 
   /// \brief read all \a _used_images and optimize for them
@@ -110,7 +111,6 @@ struct BAParam {
   friend class BAOptimizer;
   friend class OptimizerWithIntrinsic;
 };
-
 
 class BAOptimizer : public I_Optimize {
  public:
@@ -135,13 +135,14 @@ class BAOptimizer : public I_Optimize {
  public:
   /// \brief parameters to be adjusted
   /// \param param the address of parameters
-  [[deprecated("use OptimizerWithIntrinsic instead")]]
-  BAOptimizer(const sp<BAParam>& param) : _param(param) {}
+  [[deprecated("use OptimizerWithIntrinsic instead")]] BAOptimizer(
+      const sp<BAParam>& param)
+      : _param(param) {
+    assert(0 && "This class is deprecated!!!");
+  }
 
-  [[deprecated("use OptimizerWithIntrinsic instead")]]
-  bool optimize() override;
+  [[deprecated("use OptimizerWithIntrinsic instead")]] bool optimize() override;
 };
-
 
 class OptimizerWithIntrinsic : public I_Optimize {
  public:

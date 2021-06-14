@@ -184,22 +184,24 @@ void BAParam::writeBack() const {
     auto [fx, fy, cx, cy] = sys.camera_parameters();
     auto distort = sys.distort_parameter();
     double k1 = distort[0], k2 = distort[1], p1 = distort[2], p2 = distort[3];
-    cout << Format( "************** Origin Camera Intrinsic ***************\n"
-                    "fx: %1%, fy: %2%, cx: %3%, cy: %4%\n"
-                    "k1: %5%, k2: %6%, p1: %7%, p2: %8%\n"
-                    "******************************************************\n")
-          % fx % fy % cx % cy % k1 % k2 % p1 % p2;
+    cout << Format(
+                "************** Origin Camera Intrinsic ***************\n"
+                "fx: %1%, fy: %2%, cx: %3%, cy: %4%\n"
+                "k1: %5%, k2: %6%, p1: %7%, p2: %8%\n"
+                "******************************************************\n") %
+                fx % fy % cx % cy % k1 % k2 % p1 % p2;
     fx = _intrinsic[0], fy = _intrinsic[1], cx = _intrinsic[2],
     cy = _intrinsic[3];
     k1 = _intrinsic[4], k2 = _intrinsic[5], p1 = _intrinsic[6],
     p2 = _intrinsic[7];
     sys.camera_K(fx, fy, cx, cy);
     sys.distort_parameter(k1, k2, p1, p2);
-    cout << Format( "************** Current Camera Intrinsic **************\n"
-                    "fx: %1%, fy: %2%, cx: %3%, cy: %4%\n"
-                    "k1: %5%, k2: %6%, p1: %7%, p2: %8%\n"
-                    "******************************************************\n")
-          % fx % fy % cx % cy % k1 % k2 % p1 % p2;
+    cout << Format(
+                "************** Current Camera Intrinsic **************\n"
+                "fx: %1%, fy: %2%, cx: %3%, cy: %4%\n"
+                "k1: %5%, k2: %6%, p1: %7%, p2: %8%\n"
+                "******************************************************\n") %
+                fx % fy % cx % cy % k1 % k2 % p1 % p2;
   }
 
   // Rewrite R|t to \a _image_ids
@@ -209,18 +211,29 @@ void BAParam::writeBack() const {
     Image& img = images.at(image_id);
     {
       assert(img.id() == image_id);
-      Print(boost::format("*************** OLD image %1% ***************\nR "
-                          "is\n%2%\nt is\n%3%\n") %
-            image_id % img.Rcw() % img.tcw());
-    }
-    // Rewriting...
-    img.Rcw(Vec3ToRmat(pose6.data()));
-    img.tcw(Vec3ToTmat(pose6.data() + 3));
-    {
-      Print(boost::format("*************** NEW image %1% ***************\nR "
-                          "is\n%2%\nt is\n%3%\n") %
-            image_id % img.Rcw() % img.tcw());
-    }
+      auto &old_R = img.Rcw(), &old_t = img.tcw();
+      auto new_R = Vec3ToRmat(pose6.data()),
+           new_t = Vec3ToTmat(pose6.data() + 3);
+
+      if (_const_rotation.count(image_id) == 0) {
+        Print(Format("********* image %1% *********\n"
+                     "old R is\n%2%\n"
+                     "new R is\n%3%\n") %
+              image_id % old_R % new_R);
+        img.Rcw(new_R);
+        img.inc_R_ba_times();
+        Print(Format("****** R-BA times: %1% ******\n") % img.R_ba_times());
+      }
+      if (_const_translation.count(image_id) == 0) {
+        Print(Format("********** image %1% *********\n"
+                     "old t is\n%2%\n"
+                     "new t is\n%3%\n") %
+              image_id % old_t % new_t);
+        img.tcw(new_t);
+        img.inc_t_ba_times();
+        Print(Format("****** t-BA times: %1% ******\n") % img.t_ba_times());
+      }
+    }  // Rewrite...
   }
 
   // Rewrite all mappoints(filter some bad points)
@@ -244,6 +257,11 @@ void BAParam::writeBack() const {
           proj = sys.camera_K() * proj;
           projs.emplace_back(proj);
         }
+        // Undistort the pt2s!!!
+        // TODO: move following codes to map_point_filter.cpp
+        do {
+          UndistortPoint(pt2s, sys.camera_K(), sys.distort_parameter());
+        } while (0);
         const int min_okay_reproj_count =
             std::max(static_cast<int>(obs.size()) - 1, 2);
         sp<I_MapPointFilter> depth_test(
@@ -257,6 +275,7 @@ void BAParam::writeBack() const {
         }
         ++pt3_count;
         mp.pos() = new_pos;  // update the old map point
+        mp.inc_ba_times();
       });
 
   // BA is over!
@@ -292,6 +311,8 @@ void BAParam::read(const UsedImages& used) {
   using namespace std;
   assert(_poses.empty() && _obs.empty() && _point3s.empty());
 
+  const int MAX_TIMES = sys.max_image_optimized_times();
+
   // 选择是否优化对应位姿
   for (int id : used) {
     if (is_const_all_poses) {
@@ -300,11 +321,10 @@ void BAParam::read(const UsedImages& used) {
     } else {
       // 根据图片被优化次数，决定是否优化该位姿
       const Image& img = _db->images().at(id);
-      const int max_times = sys.max_image_optimized_times();
-      if (img.R_ba_times() >= max_times) {
+      if (img.R_ba_times() >= MAX_TIMES) {
         addConstRotation(id);
       }
-      if (img.t_ba_times() >= max_times) {
+      if (img.t_ba_times() >= MAX_TIMES) {
         addConstTranslation(id);
       }
     }
@@ -345,12 +365,18 @@ void BAParam::read(const UsedImages& used) {
       if (IntersectionCount() < 2) continue;
 
       // after checking, the \var map_pt is ready for adding to BA system
-      if (_point3s.count(map_pt.id()) == 0) {
+      auto map_pt_id = map_pt.id();
+      if (_point3s.count(map_pt_id) == 0) {
         const auto& pos = map_pt.pos();
-        _point3s.emplace(map_pt.id(),
+        _point3s.emplace(map_pt_id,
                          BAVec3{pos.x, pos.y, pos.z});  // fill map-points
+        // 该地图点不再优化
+        if (map_pt.ba_times() >= MAX_TIMES) {
+          _const_pt3s.emplace(map_pt_id);
+        }
       }
       // fill observer key-points
+      // 此处坐标不需要去畸变，因为地图点在投影后会畸变
       auto pt2 = kpt.pt();
       _obs.emplace_back(BAVec2{pt2.x, pt2.y}, _poses.back().second.data(),
                         _point3s.at(map_pt.id()).data());
@@ -547,15 +573,30 @@ bool OptimizerWithIntrinsic::optimize() {
   auto *const_rotation_param =
            new ceres::SubsetParameterization(6, vector<int>({0, 1, 2})),
        *const_translation_param =
-           new ceres::SubsetParameterization(6, vector<int>({3, 4, 5}));
+           new ceres::SubsetParameterization(6, vector<int>({3, 4, 5})),
+       *const_Rt_param = new ceres::SubsetParameterization(
+           6, vector<int>({0, 1, 2, 3, 4, 5}));
   for (auto& p : (_param->_poses)) {
     int image_id = p.first;
     auto& pose6 = p.second;
-    if (_param->_const_rotation.count(image_id)) {
-      problem.SetParameterization(pose6.data(), const_rotation_param);
-    }
-    if (_param->_const_translation.count(image_id)) {
+    bool is_const_R = _param->_const_rotation.count(image_id),
+         is_const_t = _param->_const_translation.count(image_id);
+    if (is_const_R) {
+      if (is_const_t)
+        problem.SetParameterization(pose6.data(), const_Rt_param);
+      else
+        problem.SetParameterization(pose6.data(), const_rotation_param);
+    } else if (is_const_t) {
       problem.SetParameterization(pose6.data(), const_translation_param);
+    }
+  }
+
+  // set unchanged points
+  for (auto& p : (_param->_point3s)) {
+    auto id = p.first;
+    const auto& pt3 = p.second;
+    if (_param->_const_pt3s.count(id)) {
+      problem.SetParameterBlockConstant(pt3.data());
     }
   }
 

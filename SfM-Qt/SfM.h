@@ -43,7 +43,7 @@ class SfM : public QObject {
  public slots:
   void setDBPaths(const std::string &, const std::string &);
   void setInitImagePair(int, int);
-  void setCameraConf(double fx, double fy, double cx, double cy);
+  void setCameraConf(const std::vector<double>& conf);
   void setRuntimeConf(const std::any &);
   void setBAMode(OptimizeSetting::OptMode);
 
@@ -95,6 +95,7 @@ class SfM : public QObject {
 
   State _state = State::ORIGINAL;
   std::atomic_bool _is_busy = false;
+  
 
   /**
    * @brief initialize the SfM system

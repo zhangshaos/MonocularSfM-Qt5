@@ -47,13 +47,18 @@ class ReprojDistanceFilter : public virtual I_MapPointFilter {
   double _max_dist;
   int _min_okay_proj_count;
   const std::vector<cv::Mat>& _proj;
+  const cv::Mat _K_inv;
 
  public:
+  /**
+   * @brief
+   * @param max_dist
+   * @param proj actually we decompose the \p proj,
+   * and only use the Rcw|tcw part
+   * @param min_okay_proj_count
+   */
   ReprojDistanceFilter(double max_dist, const std::vector<cv::Mat>& proj,
-                    int min_okay_proj_count)
-      : _max_dist(max_dist),
-        _min_okay_proj_count(min_okay_proj_count),
-        _proj(proj) {}
+                       int min_okay_proj_count);
   bool isBad(const Point3& pt3) override;
 };
 

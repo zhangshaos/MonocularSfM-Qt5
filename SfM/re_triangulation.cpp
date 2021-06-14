@@ -14,6 +14,7 @@ ReTriangulator::~ReTriangulator() {}
 int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
                        int cur_image) {
   using namespace std;
+  auto& K = sys.camera_K();
   int count = 0;
   auto& image = db->images().at(cur_image);
   auto& kpts = image.kpts();
@@ -29,7 +30,7 @@ int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
     {  // 1. add main tracked views and points...
       cv::Mat1d proj;
       cv::hconcat(image.Rcw(), image.tcw(), proj);
-      proj = sys.camera_K() * proj;
+      proj = K * proj;
       views.emplace_back(proj);
       pt2s.emplace_back(kp1.pt());
       // 2. add related tracked view...
@@ -49,12 +50,18 @@ int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
         }  // else:
         cv::Mat1d proj2;
         cv::hconcat(image2.Rcw(), image2.tcw(), proj2);
-        proj2 = sys.camera_K() * proj2;
+        proj2 = K * proj2;
         views.emplace_back(proj2);
         pt2s.emplace_back(kp2.pt());
       }  // finnish add related views
-    }    // finish adding all tracked views and points
-    {    // start to produce new map point...
+
+      // Undistort key points
+      do {
+        UndistortPoint(pt2s, K, sys.distort_parameter());
+      } while (0);
+
+    }  // finish adding all tracked views and points
+    {  // start to produce new map point...
       sp<I_Triangulate> tri(new MultiViewsTriangulater(views, pt2s));
       Point3 mp_pt;
       if (!tri->calculate(mp_pt)) continue;

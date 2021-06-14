@@ -66,11 +66,18 @@ inline bool AllowedReprojectDistance(double max_dist, const Point3& pt3,
   return z > 0 && dist <= max_dist;
 }
 
+ReprojDistanceFilter::ReprojDistanceFilter(double max_dist,
+                                           const std::vector<cv::Mat>& proj,
+                                           int min_okay_proj_count)
+    : _max_dist(max_dist),
+      _min_okay_proj_count(min_okay_proj_count),
+      _proj(proj),
+      _K_inv(sys.camera_K().inv()) {}
+
 bool ReprojDistanceFilter::isBad(const Point3& pt3) {
   int okay = 0;
-  const cv::Mat K_inv = sys.camera_K().inv();
   // TODO: to parallel
   for (int i = 0; i < _proj.size(); ++i)
-    if (AllowedReprojectDistance(_max_dist, pt3, _proj[i], K_inv)) ++okay;
+    if (AllowedReprojectDistance(_max_dist, pt3, _proj[i], _K_inv)) ++okay;
   return okay < _min_okay_proj_count;
 }
