@@ -1,12 +1,17 @@
 #include "SfM.h"
 
+#include <filesystem>
 #include <magic_enum.hpp>
 
 #include "PCLShower.h"
-#include "SFM/incr_sfm.h"
-#include "SfM/db_init.h"
+#include "SfM/image.h"
+#include "SfM/image_graph.h"
+#include "SfM/incr_sfm.h"
 #include "SfM/initialize.h"
 #include "SfM/system_info.h"
+// here
+#include "SfM/db.h"
+#include "SfM/db_init.h"
 
 LoadImagesThread::LoadImagesThread(const std::string& path)
     : QThread(), _path(path) {}

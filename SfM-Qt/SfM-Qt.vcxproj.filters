@@ -85,6 +85,12 @@
     <ClCompile Include="PCLShower.cpp">
       <Filter>MainUi</Filter>
     </ClCompile>
+    <ClCompile Include="..\SfM\kpt_extract_and_match.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SfM\db.cpp">
+      <Filter>SfM\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CameraSetting.h">
@@ -206,6 +212,12 @@
     </ClInclude>
     <ClInclude Include="..\SfM\map_point.h">
       <Filter>SfM\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\kpt_extract_and_match.h">
+      <Filter>SfM\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SfM\db.h">
+      <Filter>SfM\model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
