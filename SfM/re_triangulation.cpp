@@ -1,16 +1,23 @@
 #define _USE_MATH_DEFINES 1
-#include "re_triangulation.h"
 
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "image.h"
+#include "image_graph.h"
 #include "system_info.h"
 #include "triangulate.h"
+
+// here
+#include "db.h"
+#include "re_triangulation.h"
 
 ReTriangulator::ReTriangulator(const sp<BAParam>& param) : _data(param) {}
 
 ReTriangulator::~ReTriangulator() {}
 
+// TODO: 根据 Pnp 的 inlier_indices 来设置 kpts
 int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
                        int cur_image) {
   using namespace std;
@@ -20,10 +27,10 @@ int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
   auto& kpts = image.kpts();
   for (int i = 0; i < kpts.size(); ++i) {
     auto& kp1 = kpts[i];
-    if (kp1.id() >= 0) continue;  // skip when Re-Triangulating
-    auto tracked_image_and_kp =
+    if (kp1.empty() || kp1.id() >= 0) continue;  // skip when Re-Triangulating
+    auto tracked_image_and_kp_s =
         db->G().getAllTrackedKptsOfPart(cur_image, i, part_images);
-    if (tracked_image_and_kp.empty()) continue;  // skip
+    if (tracked_image_and_kp_s.empty()) continue;  // skip
     // add multiple view and key point to \class MultiViewsTriangulater
     vector<cv::Mat> views;
     vector<Point2> pt2s;
@@ -34,18 +41,18 @@ int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
       views.emplace_back(proj);
       pt2s.emplace_back(kp1.pt());
       // 2. add related tracked view...
-      for (auto [image2_id, kp2_idx] : tracked_image_and_kp) {
-        const Image& image2 = db->images().at(image2_id);
+      for (auto [other_image, key_pt_i] : tracked_image_and_kp_s) {
+        const Image& image2 = db->images().at(other_image);
         auto& kpts2 = image2.kpts();
-        const KeyPoint& kp2 = kpts2[kp2_idx];
-        int64_t mp_id = kp2.id();
+        const KeyPoint& kp2 = kpts2[key_pt_i];
+        int64_t map_pt_id = kp2.id();
         // if the matched KeyPoint alreadly produced a map point:
         // 1. relate this KeyPoint to the map point
         // 2. the map point add a observer about this KeyPoint
         // 3. break triangulating this keypoint
-        if (mp_id >= 0) {
-          image.setMapptOfKpt(i, mp_id);
-          map->getMapPoint(mp_id).addObserver(image.id(), i);
+        if (map_pt_id >= 0) {
+          image.setMapptOfKpt(i, map_pt_id);
+          map->getMapPoint(map_pt_id).addObserver(image.id(), i);
           goto PRODUCE_NEXT_MAPPT;
         }  // else:
         cv::Mat1d proj2;
@@ -67,8 +74,8 @@ int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
       if (!tri->calculate(mp_pt)) continue;
 
       // insert the map point into global map
-      tracked_image_and_kp.emplace_back(cur_image, i);
-      auto mp = MapPoint::create(mp_pt, tracked_image_and_kp, db);
+      tracked_image_and_kp_s.emplace_back(cur_image, i);
+      auto mp = MapPoint::create(mp_pt, tracked_image_and_kp_s, db);
       map->addMapPoint(mp);
       ++count;
     }                  // new map point produced over

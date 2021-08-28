@@ -1,9 +1,14 @@
-#include "map.h"
 
 #include <execution>
+#include <filesystem>
 #include <fstream>
+#include <boost/format.hpp>
 
+#include "common_type.h"
+
+// here
 #include "db_init.h"
+#include "map.h"
 
 int64_t Map::addMapPoint(const MapPoint& pt) {
   ulock<smtx> lock(_mtx);

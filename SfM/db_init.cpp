@@ -1,19 +1,36 @@
-#include "db_init.h"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/format.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <execution>
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include <opencv2/opencv.hpp>
 
 #include "global_config.h"
+#include "image.h"
+#include "image_graph.h"
 #include "system_info.h"
 
+// here
+#include "db.h"
+#include "db_init.h"
+#include "kpt_extract_and_match.h"
+
 using Format = boost::format;
+
+DBInit::DBInit(const fs::path& images_dir, const fs::path& out_dir)
+    : _images_dir(images_dir), _out_dir(out_dir), _db(new DB) {
+  bool ok = fs::exists(images_dir) && fs::exists(out_dir);
+  auto s = (boost::wformat(L"directory %s and %s must be existed!") %
+            images_dir.c_str() % out_dir.c_str())
+               .str();
+  assert(ok && s.c_str());
+}
 
 void DBInit::runInitializing() {
   using namespace std;
@@ -31,8 +48,9 @@ void DBInit::runInitializing() {
   for (auto& entry : fs::directory_iterator(_images_dir)) {
     auto ext =
         boost::algorithm::to_lower_copy(entry.path().extension().string());
-    if (entry.is_regular_file() && (ext == ".jpg" || ext == ".png"))
+    if (entry.is_regular_file() && (ext == ".jpg" || ext == ".png")) {
       files.emplace_back(entry.path());
+    }
   }
   for_each(std::execution::par, files.begin(), files.end(),
            [this](const fs::path& f) {
@@ -66,8 +84,11 @@ void DBInit::runInitializing() {
            [this, &images](const pair<int, int>& pr) {
              const Image &img1 = images.at(pr.first),
                          &img2 = images.at(pr.second);
-             sp<I_MatchFeatures> match(
-                 new Flann_Matcher(img1.descp(), img2.descp()));
+             // TODO: 实现抢占式匹配
+             // 在正式开始特征点匹配前，测试两张图片的匹配度，如果匹配度低
+             // 则直接跳过匹配，以此减少匹配时间！
+             sp<I_MatchFeatures> match(new Flann_Matcher(
+                 img1.kpts(), img1.descp(), img2.kpts(), img2.descp()));
              // DMatch
              vector<cv::DMatch> dms;
              if (match->run(dms) > sys.min_matches_edge_in_create_image_graph())
@@ -91,54 +112,10 @@ void DBInit::saveDB(fs::path& images_dir, fs::path& graph_dir) const {
   ofstream f1(images_dir, ios_base::binary), f2(graph_dir, ios_base::binary);
   assert(f1.is_open() && f2.is_open());
   boost::archive::binary_oarchive bf1(f1), bf2(f2);
+  _db->saveSpace();  // TODO 需要测试
   bf1 << _db->images();
   bf2 << _db->G();
 
   sys.stopTimeRecord(timer_name);
   cout << sys.getTimeRecord(timer_name) << endl;
-}
-
-sp<DB> DB::createDB(const fs::path& images_dir, const fs::path& graph_dir) {
-  using namespace std;
-  // set timer
-  constexpr char timer_name[] = "read DB from files";
-  sys.startTimeRecord(timer_name);
-
-  ifstream f1(images_dir, ios_base::binary), f2(graph_dir, ios_base::binary);
-  assert(f1.is_open() && f2.is_open());
-  boost::archive::binary_iarchive bf1(f1), bf2(f2);
-  auto db = make_shared<DB>();
-  bf1 >> db->_images;
-  bf2 >> db->_g;
-
-  sys.stopTimeRecord(timer_name);
-  cout << sys.getTimeRecord(timer_name) << endl;
-  return db;
-}
-
-inline std::string GetFilenameFromPath(const std::string& path) {
-  fs::path fs_path = path;
-  return fs_path.filename().string();
-}
-
-std::string DB::debugString() const {
-  using namespace std;
-  ostringstream infos;
-  // TODO: adopt this to multi-thead env...
-  for (auto& p1 : _g._g) {
-    int src_id = p1.first;
-    auto& src_path = _images.at(src_id).path();
-    auto& targets = p1.second;
-    infos << Format("[%1%] %2%:\n") % src_id %
-                 quoted(GetFilenameFromPath(src_path));
-    if (targets.empty()) infos << "    [NULL]\n";
-    for (auto& p2 : targets) {
-      int target_id = p2.first;
-      auto& target_path = _images.at(target_id).path();
-      auto& target = p2.second;
-      infos << Format("    [%1%-%3%] %2%\n") % target_id %
-                   quoted(GetFilenameFromPath(target_path)) % target.matches;
-    }
-  }
-  return infos.str();
 }

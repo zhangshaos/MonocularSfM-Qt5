@@ -27,6 +27,7 @@ public:
 /// \param part_images 
 /// \param cur_image 
 /// \return 
+[[deprecated("Use IncrSfM.createMapPoins() instead")]]
 int CreateNewMapPoints(sp<Map>& map, sp<DB>& db, const UsedImages& part_images,
                        int cur_image);
 

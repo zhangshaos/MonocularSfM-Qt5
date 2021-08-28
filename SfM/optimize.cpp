@@ -1,16 +1,22 @@
 #define _USE_MATH_DEFINES 1
-#include "optimize.h"
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 
 #include <execution>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 #include <thread>
 
 #include "algorithm.h"
 #include "map_point_filter.h"
 #include "system_info.h"
+#include "image.h"
+#include "image_graph.h"
+
+// here
+#include "db.h"
+#include "optimize.h"
 
 inline cv::Mat Vec3ToRmat(const double v3[3]) {
   cv::Mat1d m(3, 3);
@@ -352,7 +358,7 @@ void BAParam::read(const UsedImages& used) {
     // fill image's observer(key-point and map-point)
     const auto& kpts = image.kpts();
     for (auto& kpt : kpts) {
-      if (kpt.id() < 0) continue;
+      if (kpt.empty() || kpt.id() < 0) continue;
       const auto& map_pt = _map->getMapPoint(kpt.id());
 
       // check intersection between \var used and \var map_pt.obs()

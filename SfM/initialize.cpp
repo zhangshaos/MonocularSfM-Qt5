@@ -1,19 +1,22 @@
 #define _USE_MATH_DEFINES
-#include "initialize.h"
 
 #include <algorithm>
-#include <atomic>
+#include <boost/format.hpp>
 #include <execution>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
-#include <string>
 
 #include "cal_pose.h"
 #include "global_config.h"
+#include "image_graph.h"
 #include "key_point.h"
 #include "map.h"
 #include "optimize.h"
 #include "system_info.h"
 #include "triangulate.h"
+// here
+#include "db.h"
+#include "initialize.h"
 
 // DEBUG
 // convert KeyPoints to cv::KeyPoints

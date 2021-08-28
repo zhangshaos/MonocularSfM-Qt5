@@ -1,9 +1,12 @@
-#include "map_point.h"
 
-#include <atomic>
 #include <execution>
+#include <filesystem>
 
-#include "db_init.h"
+#include "image.h"
+#include "image_graph.h"
+// here
+#include "db.h"
+#include "map_point.h"
 
 struct MapPoint_impl {
   // the optimized times of bundle adjustment
@@ -43,11 +46,11 @@ MapPoint MapPoint::create(const Point3& pos,
                           const std::vector<std::pair<int, int>>& obs,
                           sp<DB>& db) {
   MapPoint mp(pos);
-  for (auto [image_i, kp_idx] : obs) {
-    mp.addObserver(image_i, kp_idx);
+  for (auto [image_i, key_pt_i] : obs) {
+    mp.addObserver(image_i, key_pt_i);
     // update matched relationship between keypoint and mappoint
     Image& img = db->images().at(image_i);
-    img.setMapptOfKpt(kp_idx, mp.id());
+    img.setMapptOfKpt(key_pt_i, mp.id());
   }
   return mp;
 }

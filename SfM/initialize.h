@@ -69,6 +69,7 @@ struct InitialMatchedParam {
  * @param pm \see \class InitialMatchedParam
  * @return
  */
+[[deprecated("use ImageGraph.getMatchedKeyPoins() instead")]]
 std::pair<std::vector<Point2>, std::vector<Point2>>
 GetMatchedKeypointsPairFromDB(InitialMatchedParam &pm);
 

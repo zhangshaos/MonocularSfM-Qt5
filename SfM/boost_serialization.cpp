@@ -18,8 +18,8 @@
 #include <boost/serialization/unordered_set.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
-
 #include <opencv2/opencv.hpp>
+
 #include "image.h"
 #include "image_graph.h"
 
@@ -146,21 +146,81 @@ void serialize<BinOAr>(BinOAr& ar, cv::DMatch& dm, const unsigned int) {
 /// \note none
 template <typename Archive>
 void KeyPoint::serialize(Archive& ar, const unsigned int ver) {
-  ar& _mappoint_id;
-  ar& _kp.angle& _kp.class_id& _kp.octave& _kp.pt.x& _kp.pt.y& _kp.response& _kp
-      .size;
+  bool have_key_point = false;
+  if constexpr (Archive::is_loading::value) {
+    ar& have_key_point;
+    if (have_key_point) {
+      _self.reset(new KeyPoint_Impl);
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    }
+  } else {
+    if (_self) {
+      have_key_point = true;
+      ar& have_key_point;
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    } else {
+      have_key_point = false;
+      ar& have_key_point;
+    }
+  }
 }
 template <>
 void KeyPoint::serialize<BinIAr>(BinIAr& ar, const unsigned int ver) {
-  ar& _mappoint_id;
-  ar& _kp.angle& _kp.class_id& _kp.octave& _kp.pt.x& _kp.pt.y& _kp.response& _kp
-      .size;
+  bool have_key_point = false;
+  if constexpr (BinIAr::is_loading::value) {
+    ar& have_key_point;
+    if (have_key_point) {
+      _self.reset(new KeyPoint_Impl);
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    }
+  } else {
+    if (_self) {
+      have_key_point = true;
+      ar& have_key_point;
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    } else {
+      have_key_point = false;
+      ar& have_key_point;
+    }
+  }
 }
 template <>
 void KeyPoint::serialize<BinOAr>(BinOAr& ar, const unsigned int ver) {
-  ar& _mappoint_id;
-  ar& _kp.angle& _kp.class_id& _kp.octave& _kp.pt.x& _kp.pt.y& _kp.response& _kp
-      .size;
+  bool have_key_point = false;
+  if constexpr (BinOAr::is_loading::value) {
+    ar& have_key_point;
+    if (have_key_point) {
+      _self.reset(new KeyPoint_Impl);
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    }
+  } else {
+    if (_self) {
+      have_key_point = true;
+      ar& have_key_point;
+      ar & _self->_mappoint_id;
+      ar & _self->_kp.angle & _self->_kp.class_id & _self->_kp.octave &
+          _self->_kp.pt.x & _self->_kp.pt.y & _self->_kp.response &
+          _self->_kp.size;
+    } else {
+      have_key_point = false;
+      ar& have_key_point;
+    }
+  }
 }
 
 /// \brief serialize for \class Image
@@ -173,9 +233,10 @@ void Image::serialize(Archive& ar, const unsigned int ver) {
   // ar& self->gray_mat& self->rgb_mat;
   ar & self->path;
   ar & self->kpts;
-  ar & self->descp;
+  // ar & self->descp; // Only used in key-point-match
+  // when database initilizing. No need to recover.
   ar & self->Rcw & self->tcw;
-  if (Archive::is_loading::value) {
+  if constexpr (BinIAr::is_loading::value) {
     assert(!self->path.empty());
     self->rgb_mat = cv::imread(self->path);
     assert(!self->rgb_mat.empty());
@@ -189,9 +250,10 @@ void Image::serialize<BinIAr>(BinIAr& ar, const unsigned int ver) {
   // ar& self->gray_mat& self->rgb_mat;
   ar & self->path;
   ar & self->kpts;
-  ar & self->descp;
+  // ar & self->descp; // Only used in key-point-match
+  // when database initilizing. No need to recover.
   ar & self->Rcw & self->tcw;
-  if (BinIAr::is_loading::value) {
+  if constexpr (BinIAr::is_loading::value) {
     assert(!self->path.empty());
     self->rgb_mat = cv::imread(self->path);
     assert(!self->rgb_mat.empty());
@@ -205,9 +267,10 @@ void Image::serialize<BinOAr>(BinOAr& ar, const unsigned int ver) {
   // ar& self->gray_mat& self->rgb_mat;
   ar & self->path;
   ar & self->kpts;
-  ar & self->descp;
+  // ar & self->descp; // Only used in key-point-match
+  // when database initilizing. No need to recover.
   ar & self->Rcw & self->tcw;
-  if (BinOAr::is_loading::value) {
+  if constexpr (BinIAr::is_loading::value) {
     assert(!self->path.empty());
     self->rgb_mat = cv::imread(self->path);
     assert(!self->rgb_mat.empty());

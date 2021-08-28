@@ -181,21 +181,21 @@ SystemInfo::SysConfig::SysConfig() {
   _sitf_sigma = 1.6;
   _dist_ratio_in_filter_matches = 0.8;  //< 筛选特征点匹配
   _min_matches_edge_in_create_image_graph =
-      100;  //< Image Graph 中，边节点最小的匹配数量
+      16;  //< Image Graph 中，边节点最小的匹配数量
 
   // 地图初始化时相关参数：
-  _min_inliers_in_2d2d_matching = 100;       //< 2D-2D 对应内点最小数量
-  _ransac_confidence_in_compute_H_E = 0.99;  //< 求 H、E 时 ransac 置信度
-  _max_error_in_compute_F_E = 3.0;           //< 求 E 时误差阈值
-  _max_error_in_compute_H = 3.0;             //< 求 H 时误差阈值
+  _min_inliers_in_2d2d_matching = 50;       //< 2D-2D 对应内点最小数量
+  _ransac_confidence_in_compute_H_E = 0.7;  //< 求 H、E 时 ransac 置信度
+  _max_error_in_compute_F_E = 3.0;          //< 求 E 时误差阈值
+  _max_error_in_compute_H = 3.0;            //< 求 H 时误差阈值
   _max_error_in_init_triangulte = 3.0;  //< 三角测量重投影误差阈值
   _min_angle_in_init_triangulte = 5.0 * M_PI / 180.0;  //< 三角测量角度误差阈值
 
   // Pnp 求解位姿相关参数
-  _min_inlers_in_pnp = 15;            //< Pnp 后 2D-3D 匹配的最小数量
-  _ransac_times_in_pnp = 100'000;     //< Pnp ransac 迭代次数
-  _ransac_conifidence_in_pnp = 0.99;  //< Pnp ransac 置信阈值
-  _max_error_in_pnp = 3.0;            //< Pnp 误差阈值
+  _min_inlers_in_pnp = 9;            //< Pnp 后 2D-3D 匹配的最小数量
+  _ransac_times_in_pnp = 10'000;      //< Pnp ransac 迭代次数
+  _ransac_conifidence_in_pnp = 0.7;  //< Pnp ransac 置信阈值
+  _max_error_in_pnp = 3.0;           //< Pnp 误差阈值
 
   // 后续三角测量相关参数
   _max_error_in_triangulate = 3.0;                  //< 重投影误差阈值

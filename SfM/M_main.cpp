@@ -1,15 +1,19 @@
 #include <boost/format.hpp>
+#include <filesystem>
 #include <iostream>
 
-#include "db_init.h"
+#include "image_graph.h"
 #include "system_info.h"
+// here
+#include "db.h"
+#include "db_init.h"
 
 using Format = boost::format;
 
 /**
  * @brief construct DB model without GUI.
- * @return 
-*/
+ * @return
+ */
 int M_main() {
   using namespace std;
 
@@ -17,7 +21,7 @@ int M_main() {
   init.runInitializing();
 
   auto db = init.createDB();
-  //TODO: 执行图算法，求 db 的所有联通子集
+  // TODO: 执行图算法，求 db 的所有联通子集
 
   // output the relationship of all images
   cout << Format(

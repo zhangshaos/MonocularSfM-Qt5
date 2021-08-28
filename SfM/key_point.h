@@ -15,34 +15,41 @@
 
 #include "common_type.h"
 
-/// \class KeyPoint
-/// \brief a 2D key point of an image
-/// \note
-/// *
-/// *
-class KeyPoint {
+struct KeyPoint_Impl {
   int64_t _mappoint_id = -1;  ///< corresponding mappoint's ID, default -1, -1
                               ///< means no related mappoint
   cv::KeyPoint _kp;           ///< cv::KeyPoint
+};
+
+/// \class KeyPoint
+/// \brief a 2D key point of an image
+/// \note
+/// * I use impl-ptr for optimizing, when the key point is never used,
+/// use clear() to release the heap-memory.\n
+/// Use empty() to observe the impl-ptr whether empty.
+/// *
+class KeyPoint {
+  sp<KeyPoint_Impl> _self;
+  KeyPoint(bool use_impl);
 
  public:
+  KeyPoint();
+  bool empty() const;
+  void clear();
+
   /// \brief transform the opencv keypoints to my-version keypoints
-  /// \param[in] _kps opencv keypoints
-  /// \return my-version keypoints
+  /// \param _kps opencv keypoints
+  /// \return
   static std::vector<KeyPoint> TransformFromCVKeypoints(
       const std::vector<cv::KeyPoint>& _kps);
-  static KeyPoint FromCVkp(const cv::KeyPoint& kp) {
-    KeyPoint p;
-    p._kp = kp;
-    return p;
-  }
-  static cv::KeyPoint ToCVKp(const KeyPoint& kp) { return kp._kp; }
+  static KeyPoint FromCVkp(const cv::KeyPoint& kp);
+  static cv::KeyPoint ToCVKp(const KeyPoint& kp);
 
   template <typename Archive>
   void serialize(Archive& ar, const unsigned int ver);
-  int64_t id() const { return _mappoint_id; }
-  void id(int64_t id) { _mappoint_id = id; }
-  Point2 pt() const { return Point2(_kp.pt.x, _kp.pt.y); }
+  int64_t id() const;
+  void id(int64_t id);
+  Point2 pt() const;
 };
 
 /**

@@ -1,9 +1,14 @@
+#include <boost/format.hpp>
+#include <filesystem>
 #include <iostream>
 #include <locale>
 
+#include "image_graph.h"
 #include "incr_sfm.h"
 #include "initialize.h"
 #include "system_info.h"
+// here
+#include "db.h"
 
 int C_main() {
   using namespace std;
@@ -47,7 +52,7 @@ int C_main() {
   } catch (std::exception e) {
     puts(e.what());
     throw;
-  }  
+  }
 
   return 0;
 }

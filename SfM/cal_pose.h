@@ -76,4 +76,13 @@ class PnpPoser : public I_CalculatePose {
   bool calculate(cv::Mat &R, cv::Mat &t) override;
 };
 
+
+class MultiviewPoser : public I_CalculatePose
+{
+public:
+  
+  bool calculate(cv::Mat& R, cv::Mat& t) override;
+};
+
+
 #endif  // !__mococular_cal_pose_h__

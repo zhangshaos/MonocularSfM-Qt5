@@ -72,8 +72,32 @@ struct IncrSfM {
   /// \param[out] map_pts
   /// \param[out] kpts
   /// \note
-  void trackObservers(int img, std::vector<Point3> &map_pts,
-                      std::vector<Point2> &kpts) const;
+  [[deprecated("use DB.getTrackObs() instead")]] void trackObservers(
+      int img, std::vector<Point3> &map_pts, std::vector<Point2> &kpts) const;
+
+  /**
+   * @brief find the image-\p id 's key-points and corresponding map points
+   * @param[in] id
+   * @param[out] kps
+   * @param[out] map_pts
+   */
+  void getTrackObs(int id, std::vector<int> &kps,
+                   std::vector<int64_t> &map_pts) const;
+
+  /**
+   * @brief create new map points of image-\p id based on \p inliers
+   * @param id
+   * @param inliers
+   * @return
+   */
+  int createMapPoints(int id, const std::vector<int> &inliers);
+
+  /**
+   * @brief
+   * @param param
+   * @return
+   */
+  int reCreateMapPoints(const sp<BAParam> &param);
 };
 
 #endif  // !__monocular_incr_sfm__

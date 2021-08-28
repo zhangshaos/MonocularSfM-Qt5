@@ -121,7 +121,10 @@ class ImageGraph {
 
   /// \brief return set of {image id, key point index} of \p part and the key
   /// point index is matched to \p image_id's \p kp_idx-th keypoint \param
-  /// image_id \param kp_idx \param part \return
+  /// image_id
+  /// \param kp_idx
+  /// \param part
+  /// \return
   std::vector<std::pair<int, int>> getAllTrackedKptsOfPart(
       int image_id, int kp_idx, const std::unordered_set<int>& part) const;
 
@@ -133,8 +136,21 @@ class ImageGraph {
   getMostMatchesPair() const;
 
   /// \brief get the image_id pairs which ranked by matches-count in ascending
-  /// order \return \retval std::vector<std::pair<int, int>>
+  /// order
+  /// \return
+  /// \retval std::vector<std::pair<int, int>>
   std::vector<std::pair<int, int>> getAllMatchedPair() const;
+
+  /**
+   * @brief calculate the matched result of image-pair \p img1 <-> \p img2
+   * and return the connected key points' index
+   * @param img1
+   * @param[out] kps1
+   * @param img2
+   * @param[out] kps2 
+  */
+  void getMatchedKeyPoints(int img1, std::vector<int>& kps1,
+                           int img2, std::vector<int>& kps2) const;
 };
 
 #endif  // !__monocularsfm_imagegraph_h__

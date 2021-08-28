@@ -1,17 +1,23 @@
 #define _USE_MATH_DEFINES 1
-#include "incr_sfm.h"
 
+#include <boost/format.hpp>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <opencv2/opencv.hpp>
 
 #include "cal_pose.h"
+#include "image_graph.h"
 #include "map.h"
 #include "optimize.h"
 #include "re_triangulation.h"
 #include "system_info.h"
 #include "triangulate.h"
+
+// here
+#include "db.h"
+#include "incr_sfm.h"
 
 bool IncrSfM::run() {
   using namespace std;
@@ -390,4 +396,112 @@ void IncrSfM::trackObservers(int img, std::vector<Point3>& map_pts,
   }  // over
   assert(already_existed.size() == map_pts.size());
   assert(map_pts.size() == kpts.size());
+}
+
+void IncrSfM::getTrackObs(int id, std::vector<int>& kps,
+                          std::vector<int64_t>& map_pts) const {
+  using namespace std;
+  kps.clear();
+  map_pts.clear();
+  unordered_set<int> already_existed;
+  const Image& img1 = db->images().at(id);
+  auto connected = db->G().getAllConnected(id);
+  for (auto& p : connected) {
+    int id2 = p.first;
+    auto& node = p.second;
+    if (!used_images->count(id2)) continue;
+    // handle connected images Ic...
+    // If Ic's keypoints matched by current image(id equal \p img)'s keypoints
+    // and this keypoints matched map points, then
+    // output the keypoints and mappoints to \p map_pts and \p kpts
+    const Image& img2 = db->images().at(id2);
+    for (auto [k1, k2] : node.dmatches) {
+      if (already_existed.count(k1)) continue;  // skip
+      int64_t map_pt_id = img2.kpts().at(k2).id();
+      if (!map->existedMapPoint(map_pt_id)) continue;  // skip
+
+      kps.emplace_back(k1);
+      map_pts.emplace_back(map_pt_id);
+
+      already_existed.emplace(k1);
+      //当 img 的特征点对应好几副图片的对应点时，同一个特征点 -
+      //可能不同的3D点对可能被加入！
+      //因此设计一个查找表格，如果img的这个特征点已经处理过了，则不再加入
+      //// update \var image1 's keypoints' corresponding mappoint's id
+      //// and \var mp 's observer 's kypoint's id
+      // img1.setMapptOfKpt(k1, mp.id());
+      // mp.addObserver(img, k1);
+      // NOTE: I don't update these until producing new map points in
+      // triangulation, because in this const function, I don't want to update
+      // any infos... which making this function owns only one major effort!!!
+    }
+  }  // over
+  assert(already_existed.size() == map_pts.size());
+  assert(map_pts.size() == kps.size());
+}
+
+int IncrSfM::createMapPoints(int id, const std::vector<int>& inliers) {
+  using namespace std;
+  auto& K = sys.camera_K();
+  int count = 0;
+  auto& image = db->images().at(id);
+  auto& kpts = image.kpts();
+  for (int key_pt_i : inliers) {
+    auto& kp1 = kpts[key_pt_i];
+    if (kp1.empty() || kp1.id() >= 0) continue;  // skip when Re-Triangulating
+    auto tracked_image_and_kp_s =
+        db->G().getAllTrackedKptsOfPart(id, key_pt_i, *used_images);
+    if (tracked_image_and_kp_s.empty()) continue;  // skip
+    // add multiple view and key point to \class MultiViewsTriangulater
+    vector<cv::Mat> views;
+    vector<Point2> pt2s;
+    {  // 1. add main tracked views and points...
+      cv::Mat1d proj;
+      cv::hconcat(image.Rcw(), image.tcw(), proj);
+      proj = K * proj;
+      views.emplace_back(proj);
+      pt2s.emplace_back(kp1.pt());
+      // 2. add related tracked view...
+      for (auto [other_image, key_pt_i] : tracked_image_and_kp_s) {
+        const Image& image2 = db->images().at(other_image);
+        auto& kpts2 = image2.kpts();
+        const KeyPoint& kp2 = kpts2[key_pt_i];
+        int64_t map_pt_id = kp2.id();
+        // if the matched KeyPoint alreadly produced a map point:
+        // 1. relate this KeyPoint to the map point
+        // 2. the map point add a observer about this KeyPoint
+        // 3. break triangulating this keypoint
+        if (map_pt_id >= 0) {
+          image.setMapptOfKpt(key_pt_i, map_pt_id);
+          map->getMapPoint(map_pt_id).addObserver(image.id(), key_pt_i);
+          goto PRODUCE_NEXT_MAPPT;
+        }  // else:
+        cv::Mat1d proj2;
+        cv::hconcat(image2.Rcw(), image2.tcw(), proj2);
+        proj2 = K * proj2;
+        views.emplace_back(proj2);
+        pt2s.emplace_back(kp2.pt());
+      }  // finnish add related views
+
+      // Undistort key points
+      do {
+        UndistortPoint(pt2s, K, sys.distort_parameter());
+      } while (0);
+
+    }  // finish adding all tracked views and points
+    {  // start to produce new map point...
+      sp<I_Triangulate> tri(new MultiViewsTriangulater(views, pt2s));
+      Point3 mp_pt;
+      if (!tri->calculate(mp_pt)) continue;
+
+      // insert the map point into global map
+      tracked_image_and_kp_s.emplace_back(id, key_pt_i);
+      auto mp = MapPoint::create(mp_pt, tracked_image_and_kp_s, db);
+      map->addMapPoint(mp);
+      ++count;
+    }                  // new map point produced over
+  PRODUCE_NEXT_MAPPT:  // \see line 61 and this goto-label only used there!!!
+    continue;
+  }  // check each key points
+  return count;
 }

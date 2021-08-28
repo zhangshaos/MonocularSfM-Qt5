@@ -173,6 +173,18 @@ std::vector<std::pair<int, int>> ImageGraph::getAllMatchedPair() const {
   return ans;
 }
 
+void ImageGraph::getMatchedKeyPoints(int img1, std::vector<int>& kps1, int img2,
+                                     std::vector<int>& kps2) const {
+  auto& dms = _g.at(img1).at(img2).dmatches;
+  kps1.clear();
+  kps2.clear();
+  for (auto& dm : dms) {
+    int i = dm.first, j = dm.second;
+    kps1.emplace_back(i);
+    kps2.emplace_back(j);
+  }
+}
+
 void ImageGraph::AdjNode::fillDMatches(
     const std::vector<cv::DMatch>& _dmatches) {
   using namespace std;
